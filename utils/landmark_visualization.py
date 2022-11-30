@@ -22,7 +22,13 @@ def visualization_landmark(landmark, nii_object):
 
 if __name__ == "__main__":
     datadir = Path("data/train")
-    images_files = [i for i in datadir.rglob("*.nii.gz") if "copd" in str(i)]
+    images_files_inhale = [i for i in datadir.rglob("*iBHCT.nii.gz") if "copd" in str(i)]
+    images_files = [
+        str(i).replace("BHCT", "e")
+        if "eBH" in str(i)
+        else str(i).replace("iBHCT.nii.gz", "300_iBH_xyz_r1.txt")
+        for i in images_files
+    ]
     landmark_files = [
         str(i).replace("eBHCT.nii.gz", "300_eBH_xyz_r1.txt")
         if "eBH" in str(i)
