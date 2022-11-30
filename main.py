@@ -1,6 +1,4 @@
 # This is the main
-
-
 import nibabel as nib
 import skimage
 import numpy as np
