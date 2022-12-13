@@ -1,5 +1,7 @@
 # Ignore this folders from the project
 data/train
+trash.py
+*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
