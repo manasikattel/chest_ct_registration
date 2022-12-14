@@ -2,7 +2,9 @@
 
 from pathlib import Path
 from utils import metrics_4_all, visualization_landmark, data_loader, elastix_batch_file, transformix_batch_file
-# from Preprocessing import hist_matching
+from database import data_loader
+from Preprocessing import hist_matching
+
 thispath = Path(__file__).resolve()
 
 
@@ -13,7 +15,7 @@ if __name__ == "__main__":
     for patient in patients:
         print(patient)
         # CT_normalization(lung_image[patient], patient, "Original", clahe=True, plothist=True)
+        
     metrics_4_all("Output_transformix_coarse")
     elastix_batch_file("trial", "Par0007")
     transformix_batch_file("trial", "trial", 1)
-
