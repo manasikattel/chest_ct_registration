@@ -5,7 +5,7 @@ from pathlib import Path
 from skimage import exposure
 import matplotlib.pyplot as plt
 import numpy as np
-thispath=Path(__file__).resolve()
+thispath = Path.cwd().resolve()
 
 
 def CT_normalization(lung_images, patient_num, intro_images_description, clahe=True, plothist=False):
@@ -41,11 +41,11 @@ def CT_normalization(lung_images, patient_num, intro_images_description, clahe=T
     header_in = nib.Nifti1Header()
     inhale_im = nib.Nifti1Image(np.float32(inhale_image), inhale.affine, header_in)
     nib.save(inhale_im,
-             Path(f'{thispath.parent.parent}/data/train/{patient_num}/{patient_num}_iNormalized.nii.gz'))
+             Path(f'{thispath}/data/train/{patient_num}/{patient_num}_iNormalized.nii.gz'))
     header_ex = nib.Nifti1Header()
     exhale_im = nib.Nifti1Image(np.float32(exhale_image), exhale.affine, header_ex)
     nib.save(exhale_im,
-             Path(f'{thispath.parent.parent}/data/train/{patient_num}/{patient_num}_eNormalized.nii.gz'))
+             Path(f'{thispath}/data/train/{patient_num}/{patient_num}_eNormalized.nii.gz'))
 
     normalized_lung_image = (inhale_im, exhale_im)
 
@@ -95,11 +95,11 @@ def CT_CLAHE(lung_images, patient_num, intro_images_description, plothistCLAHE=F
     header_in = nib.Nifti1Header()
     inhale_im = nib.Nifti1Image(np.float32(inhale_CLAHE), inhale.affine, header_in)
     nib.save(inhale_im,
-             Path(f'{thispath.parent.parent}/data/train/{patient_num}/{patient_num}_i{intro_images_description}CLAHE.nii.gz'))
+             Path(f'{thispath}/data/train/{patient_num}/{patient_num}_i{intro_images_description}CLAHE.nii.gz'))
     header_ex = nib.Nifti1Header()
     exhale_im = nib.Nifti1Image(np.float32(exhale_CLAHE), exhale.affine, header_ex)
     nib.save(exhale_im,
-             Path(f'{thispath.parent.parent}/data/train/{patient_num}/{patient_num}_e{intro_images_description}CLAHE.nii.gz'))
+             Path(f'{thispath}/data/train/{patient_num}/{patient_num}_e{intro_images_description}CLAHE.nii.gz'))
 
     CLAHE_lung_images = (inhale_im, exhale_im)
 

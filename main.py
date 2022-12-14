@@ -4,11 +4,11 @@ from pathlib import Path
 from utils import TRE_measure
 from database import data_loader
 from preprocessing import CT_normalization
-thispath = Path(__file__).resolve()
+thispath = Path.cwd().resolve()
 
 
 if __name__ == "__main__":
-    traindir = thispath.parent / "data/train"
+    traindir = thispath / "data/train"
     lung_image, lung_landmarks = data_loader(traindir)
     patients = [x.stem for x in traindir.iterdir() if x.is_dir()]
     for patient in patients:
