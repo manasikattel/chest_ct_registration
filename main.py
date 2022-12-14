@@ -14,4 +14,5 @@ if __name__ == "__main__":
     for patient in patients:
         print(f'Initial TRE measurements for {patient} (mean,std):')
         mean, std = TRE_measure(lung_landmarks['inhale'].loc[patient], lung_landmarks['exhale'].loc[patient], patient)
+        print(mean, std)
         CT_normalization(lung_image[patient], patient, "Original", clahe=True, plothist=True)

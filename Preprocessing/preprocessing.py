@@ -8,8 +8,6 @@ import numpy as np
 thispath=Path(__file__).resolve()
 
 
-# Body segmentation
-# https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_multiotsu.html
 def CT_normalization(lung_images, patient_num, intro_images_description, clahe=True, plothist=False):
     """
 
