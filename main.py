@@ -3,7 +3,7 @@
 from pathlib import Path
 from utils import TRE_measure
 from database import data_loader
-from Preprocessing import CT_normalization
+from preprocessing import CT_normalization
 thispath = Path(__file__).resolve()
 
 
