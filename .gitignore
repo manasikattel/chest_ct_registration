@@ -1,6 +1,7 @@
 # Ignore this folders from the project
 data/train
-elastix/Outputs_experiments
+elastix/Outputs_experiments_elastix
+elastix/Outputs_experiments_transformix
 trash.py
 
 

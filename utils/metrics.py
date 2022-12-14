@@ -41,7 +41,7 @@ def TRE_measure(inhale_landmarks, exhale_landmarks, patient_number):
 def metrics_4_all(inhale_transform_points_folder_name):
     thispath = Path.cwd().resolve()
 
-    datadir_inhale = thispath / f"elastix/Outputs_experiments/{inhale_transform_points_folder_name}"
+    datadir_inhale = thispath / f"elastix/Outputs_experiments_transformix/{inhale_transform_points_folder_name}"
     datadir_exhale = thispath / "data/train/"
 
     metadata = pd.read_csv(Path("data/copd_metadata.csv"), index_col=0)
