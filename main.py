@@ -1,9 +1,9 @@
 # This is the main
 
 from pathlib import Path
-from utils import TRE_measure, visualization_landmark
+from utils import TRE_measure
 from database import data_loader
-from Preprocessing import hist_matching
+from Preprocessing import CT_normalization
 thispath = Path(__file__).resolve()
 
 
@@ -14,5 +14,4 @@ if __name__ == "__main__":
     for patient in patients:
         print(f'Initial TRE measurements for {patient} (mean,std):')
         mean, std = TRE_measure(lung_landmarks['inhale'].loc[patient], lung_landmarks['exhale'].loc[patient], patient)
-        # visualization_landmark(lung_landmarks[patient][0], lung_image[patient][0])
-       # hist_matching(lung_image[patient],patient)
+        CT_normalization(lung_image[patient], patient, "Original", clahe=True, plothist=True)
