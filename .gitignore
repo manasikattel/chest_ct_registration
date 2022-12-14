@@ -1,5 +1,8 @@
 # Ignore this folders from the project
 data/train
+elastix/Outputs_experiments
+trash.py
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
