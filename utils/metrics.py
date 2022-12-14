@@ -68,5 +68,5 @@ def metrics_4_all(inhale_transform_points_folder_name):
     metrics_df.set_index('Name', inplace=True)
     metrics_df['mean'] = metrics_df.mean()
 
-    metrics_df.to_csv(thispath / "metrics.csv")
+    metrics_df.to_csv(datadir_inhale / f"metrics_{inhale_transform_points_folder_name}.csv")
     print("TRE computed and results saved in the metrics.csv file")
