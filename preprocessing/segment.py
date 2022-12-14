@@ -6,6 +6,8 @@ import numpy as np
 from pathlib import Path
 from tqdm import tqdm
 
+thispath = Path.cwd().resolve()
+
 
 def segment_kmeans(slice, K=3, attempts=10):
     slice_inv = 255 - slice
@@ -81,7 +83,7 @@ def remove_gantry(image, mask, visualize=True):
 
 
 if __name__ == "__main__":
-    datadir = Path("data/train")
+    datadir = thispath / Path("data/train")
     images_files = [i for i in datadir.rglob("*.nii.gz") if "copd" in str(i)]
     results_dir = Path("results")
     results_dir.mkdir(parents=True, exist_ok=True)
