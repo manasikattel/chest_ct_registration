@@ -29,7 +29,7 @@ def elastix_batch_file(name_experiment, parameter, data_type):
         f.write(f"ECHO Experiment: {name_experiment}. Registration of the training dataset \n\n")
         for i, image_inhale in enumerate(files_inhale):
             output = Path(thispath / Path("elastix/Outputs_experiments_elastix") / name_experiment / metadata.index[i])
-            elastix_registration = f"mkdir {output} \n\n" \
+            elastix_registration = f"mkdir -p{output} \n\n" \
                                    f"elastix -f {image_inhale}" \
                                    f" -m {files_exhale[i]}" \
                                    f" -out {output}"
@@ -74,7 +74,7 @@ def transformix_batch_file(name_experiment_elastix, name_experiment, parameter):
                           metadata.index[i])
             param = Path(thispath / Path("elastix/Outputs_experiments_elastix") / name_experiment_elastix /
                          metadata.index[i] / Path(f"TransformParameters.{number_parameters}.txt"))
-            transformix_registration = f"mkdir {output} \n\n" \
+            transformix_registration = f"mkdir -p{output} \n\n" \
                                        f"transformix -def {points_inhale}" \
                                        f" -out {output}" \
                                        f" -tp {param} \n\n"
@@ -83,3 +83,8 @@ def transformix_batch_file(name_experiment_elastix, name_experiment, parameter):
             f.write(transformix_registration)
         f.write(f"ECHO End registration experiment: {name_experiment} \n")
         f.write("PAUSE")
+
+if __name__ == "__main__":
+    datadir = Path("data/train")
+    metadata_file = "data/copd_metadata.csv"
+    save_rawtositk(datadir, metadata_file)
