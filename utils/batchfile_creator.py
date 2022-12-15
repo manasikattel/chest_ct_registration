@@ -37,7 +37,7 @@ def elastix_batch_file(name_experiment, parameter, data_type):
                 elastix_registration = f"{elastix_registration}" \
                                        f" -p {param}" \
 
-            f.write(f"ECHO Patient: {metadata.index[i]}")
+            f.write(f"ECHO Patient: {metadata.index[i]}\n\n")
             f.write(f"{elastix_registration}\n\n")
         f.write(f"ECHO End registration experiment: {name_experiment}\n")
         f.write("PAUSE")
