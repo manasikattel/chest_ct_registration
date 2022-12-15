@@ -7,6 +7,7 @@ from pathlib import Path
 from tqdm import tqdm
 import click
 
+
 thispath = Path.cwd().resolve()
 
 
@@ -62,9 +63,11 @@ def fill_chest_cavity(image, vis_each_slice=False):
     return filled_image / 255
 
 
-def remove_gantry(image, mask, visualize=True):
+def remove_gantry(image, segmented, visualize=True):
+    gantry_mask = segmented * (segmented == np.amin(segmented))
+    contours = fill_chest_cavity(gantry_mask, vis_each_slice=False)
 
-    removed = np.multiply(image, mask)
+    removed = np.multiply(image, contours)
     if visualize:
         fig, ax = plt.subplots(1, 3, figsize=(10, 5))
 
@@ -73,7 +76,7 @@ def remove_gantry(image, mask, visualize=True):
         ax[0].set_title("image")
 
         # # Plot the right lung mask
-        ax[1].imshow(mask[60, :, :], cmap="gray")
+        ax[1].imshow(contours[60, :, :], cmap="gray")
         ax[1].set_title("mask")
 
         ax[2].imshow(removed[60, :, :], cmap="gray")
@@ -81,7 +84,83 @@ def remove_gantry(image, mask, visualize=True):
 
         # # Show the figure
         plt.show()
-    return removed
+    return removed, contours
+
+
+def remove_small(lung_only, vis_each_slice=False):
+    lung_only = lung_only.astype(np.uint8)
+    filled_image = np.zeros_like(lung_only)
+    for i, slice in enumerate(lung_only):
+        nb_blobs, im_with_separated_blobs, stats, _ = cv2.connectedComponentsWithStats(
+            slice
+        )
+        sizes = stats[:, -1]
+        sizes = sizes[1:]
+        nb_blobs -= 1
+        min_size = 150
+        area_filtered = np.zeros_like(slice)
+        # for every component in the image, keep it only if it's above min_size
+        for blob in range(nb_blobs):
+            if sizes[blob] >= min_size:
+                # see description of im_with_separated_blobs above
+                area_filtered[im_with_separated_blobs == blob + 1] = 255
+
+        # kernel = np.ones((9, 9), np.uint8)
+        # im_result = cv2.morphologyEx(area_filtered, cv2.MORPH_CLOSE, kernel)
+        # im_result = cv2.morphologyEx(im_result, cv2.MORPH_DILATE, kernel)
+
+        filled_image[i, :, :] = area_filtered
+        if vis_each_slice:
+            fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+
+            # # Plot the left lung mask
+            ax[0].imshow(slice, cmap="gray")
+            ax[0].set_title("slice")
+
+            # # Plot the right lung mask
+            ax[1].imshow(area_filtered, cmap="gray")
+            ax[1].set_title("mask")
+
+            # # Show the figure
+            plt.show()
+    return filled_image
+
+
+def remove_small_3D(lung_only, vis_each_slice=False):
+    lung_only = lung_only.astype(np.uint8)
+    width = 20
+
+    remove_holes = morphology.remove_small_holes(lung_only, area_threshold=width**3)
+    remove_objects = morphology.remove_small_objects(remove_holes, min_size=width**3)
+
+    return remove_objects
+
+
+def get_lung_segmentation(segmented, gantry_mask, visualize=True):
+    lung = segmented * gantry_mask
+    lung_only = lung * (lung == np.amax(lung))
+
+    holes_filled = remove_small_3D(lung_only, False)
+    kernel = morphology.ball(6)
+    closed = morphology.closing(holes_filled, kernel)
+    dilated = morphology.dilation(closed, kernel)
+
+    if visualize:
+        fig, ax = plt.subplots(1, 3, figsize=(10, 5))
+
+        # # Plot the left lung mask
+        ax[0].imshow(lung_only[60, :, :], cmap="gray")
+        ax[0].set_title("segmented")
+
+        # # Plot the right lung mask
+        ax[1].imshow(holes_filled[60, :, :], cmap="gray")
+        ax[1].set_title("gantry_mask")
+
+        ax[2].imshow(dilated[60, :, :], cmap="gray")
+        ax[2].set_title("lung_only")
+        plt.show()
+
+    return holes_filled
 
 
 @click.command()
@@ -91,7 +170,17 @@ def remove_gantry(image, mask, visualize=True):
     prompt="Train path",
     help="name of the train folder; train, train_NormalizedCLAHE etc",
 )
-def main(train_type):
+@click.option(
+    "--save_gantry_removed",
+    default=False,
+    help="boolean to save gantry removed image",
+)
+@click.option(
+    "--save_segmentation",
+    default=True,
+    help="boolean to save segmentation",
+)
+def main(train_type, save_gantry_removed, save_segmentation):
     datadir = thispath / Path(f"data/{train_type}")
     images_files = [i for i in datadir.rglob("*.nii.gz") if "copd" in str(i)]
     results_dir = Path(f"data/{train_type}_gantry_removed")
@@ -102,15 +191,29 @@ def main(train_type):
         img_255 = sitk.Cast(sitk.RescaleIntensity(ct_image), sitk.sitkUInt8)
         seg_img = sitk.GetArrayFromImage(img_255)
         segmented = segment_kmeans(seg_img)
-        gantry_mask = segmented * (segmented == np.amin(segmented))
-        contours = fill_chest_cavity(gantry_mask, vis_each_slice=False)
-        removed = remove_gantry(seg_img, contours, visualize=False)
-        img_corr = sitk.GetImageFromArray(removed)
-        img_corr.CopyInformation(ct_image)
+        removed, gantry_mask = remove_gantry(seg_img, segmented, visualize=False)
+        lung_seg = get_lung_segmentation(segmented, gantry_mask, visualize=False)
         save_dir = results_dir / Path(image_file.parent.name)
         save_dir.mkdir(parents=True, exist_ok=True)
 
-        sitk.WriteImage(img_corr, str(Path(save_dir / Path(image_file.name))))
+        img_corr = sitk.GetImageFromArray(removed)
+        img_corr.CopyInformation(ct_image)
+        img_corr_int16 = sitk.Cast(sitk.RescaleIntensity(img_corr), sitk.sitkInt16)
+        sitk.WriteImage(img_corr_int16, str(Path(save_dir / Path(image_file.name))))
+
+        lung_arr = sitk.GetImageFromArray(lung_seg.astype(np.uint8))
+        lung_arr.CopyInformation(ct_image)
+        lung_arr_int16 = sitk.Cast(sitk.RescaleIntensity(lung_arr), sitk.sitkInt16)
+
+        sitk.WriteImage(
+            lung_arr_int16,
+            str(
+                Path(
+                    save_dir
+                    / Path(f"{image_file.name.replace('nii.gz','')}_seg.nii.gz")
+                )
+            ),
+        )
 
 
 if __name__ == "__main__":
