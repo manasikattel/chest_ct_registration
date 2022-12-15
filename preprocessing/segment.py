@@ -1,3 +1,4 @@
+from traitlets import default
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
 from skimage import morphology, measure
@@ -5,6 +6,7 @@ import cv2
 import numpy as np
 from pathlib import Path
 from tqdm import tqdm
+import click
 
 thispath = Path.cwd().resolve()
 
@@ -83,10 +85,17 @@ def remove_gantry(image, mask, visualize=True):
     return removed
 
 
-if __name__ == "__main__":
-    datadir = thispath / Path("data/train")
+@click.command()
+@click.option(
+    "--train_type",
+    default="train",
+    prompt="Train path",
+    help="name of the train folder; train, train_NormalizedCLAHE etc",
+)
+def main(train_type):
+    datadir = thispath / Path(f"data/{train_type}")
     images_files = [i for i in datadir.rglob("*.nii.gz") if "copd" in str(i)]
-    results_dir = Path("results")
+    results_dir = Path("data/train_gantry_removed")
     results_dir.mkdir(parents=True, exist_ok=True)
     # Read the chest CT scan
     for image_file in tqdm(images_files):
@@ -99,12 +108,11 @@ if __name__ == "__main__":
         removed = remove_gantry(seg_img, contours, visualize=False)
         img_corr = sitk.GetImageFromArray(removed)
         img_corr.CopyInformation(ct_image)
+        save_dir = results_dir / Path(image_file.parent.name)
+        save_dir.mkdir(parents=True, exist_ok=True)
 
-        sitk.WriteImage(
-            img_corr,
-            str(
-                Path(
-                    f"results/{(image_file.stem).replace('.nii','')}_gantry_removed.nii.gz"
-                )
-            ),
-        )
+        sitk.WriteImage(img_corr, str(Path(save_dir / Path(image_file.name))))
+
+
+if __name__ == "__main__":
+    main()
