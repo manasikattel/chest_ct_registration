@@ -1,5 +1,3 @@
-import SimpleITK as sitk
-import cv2 as cv
 import nibabel as nib
 from pathlib import Path
 from skimage import exposure
@@ -27,6 +25,8 @@ def CT_normalization(lung_images, patient_num, intro_images_description, clahe=T
 
     Returns
     -------
+    This function saves the inhale and exhale images in a created
+    subdirectory in data/train_Normalized
     normalized_lung_image: tuple
     List of Nifti1Image objects. In the first position inhale image, in the second position exhale image.
     """
@@ -40,12 +40,14 @@ def CT_normalization(lung_images, patient_num, intro_images_description, clahe=T
 
     header_in = nib.Nifti1Header()
     inhale_im = nib.Nifti1Image(np.float32(inhale_image), inhale.affine, header_in)
+
+    Path(thispath/f'data/train_Normalized/{patient_num}').mkdir(exist_ok=True, parents=True)
     nib.save(inhale_im,
-             Path(f'{thispath}/data/train/{patient_num}/{patient_num}_iNormalized.nii.gz'))
+             Path(thispath/f'data/train_Normalized/{patient_num}/{patient_num}_iBHCT.nii.gz'))
     header_ex = nib.Nifti1Header()
     exhale_im = nib.Nifti1Image(np.float32(exhale_image), exhale.affine, header_ex)
     nib.save(exhale_im,
-             Path(f'{thispath}/data/train/{patient_num}/{patient_num}_eNormalized.nii.gz'))
+             Path(thispath/f'data/train_Normalized/{patient_num}/{patient_num}_eBHCT.nii.gz'))
 
     normalized_lung_image = (inhale_im, exhale_im)
 
@@ -58,7 +60,7 @@ def CT_normalization(lung_images, patient_num, intro_images_description, clahe=T
 
 
 def CT_CLAHE(lung_images, patient_num, intro_images_description, plothistCLAHE=False):
-    """
+    f"""
 
         Parameters
         ----------
@@ -76,6 +78,8 @@ def CT_CLAHE(lung_images, patient_num, intro_images_description, plothistCLAHE=F
 
         Returns
         -------
+        This function saves the inhale and exhale images in a created 
+        subdirectory in data/train_intro_images_description_CLAHE
         CLAHE_lung_images: tuple
         List of Nifti1Image objects. In the first position inhale image, in the second position exhale image.
         """
@@ -92,14 +96,15 @@ def CT_CLAHE(lung_images, patient_num, intro_images_description, plothistCLAHE=F
     inhale_CLAHE = exposure.equalize_adapthist(inhale_image, kernel_size=kernelsize)
     exhale_CLAHE = exposure.equalize_adapthist(exhale_image, kernel_size=kernelsize)
     # Save the contrast enhanced images
+    Path(thispath / f'data/train_{intro_images_description}CLAHE/{patient_num}').mkdir(exist_ok=True, parents=True)
     header_in = nib.Nifti1Header()
     inhale_im = nib.Nifti1Image(np.float32(inhale_CLAHE), inhale.affine, header_in)
     nib.save(inhale_im,
-             Path(f'{thispath}/data/train/{patient_num}/{patient_num}_i{intro_images_description}CLAHE.nii.gz'))
+             Path(thispath / f'data/train_{intro_images_description}CLAHE/{patient_num}/{patient_num}_iBHCT.nii.gz'))
     header_ex = nib.Nifti1Header()
     exhale_im = nib.Nifti1Image(np.float32(exhale_CLAHE), exhale.affine, header_ex)
     nib.save(exhale_im,
-             Path(f'{thispath}/data/train/{patient_num}/{patient_num}_e{intro_images_description}CLAHE.nii.gz'))
+             Path(thispath / f'data/train_{intro_images_description}CLAHE/{patient_num}/{patient_num}_eBHCT.nii.gz'))
 
     CLAHE_lung_images = (inhale_im, exhale_im)
 
