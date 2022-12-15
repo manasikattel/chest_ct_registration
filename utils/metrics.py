@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
+import click
 
 
 def TRE_measure(inhale_landmarks, exhale_landmarks, patient_number):
@@ -38,11 +39,23 @@ def TRE_measure(inhale_landmarks, exhale_landmarks, patient_number):
     return tre.mean(), tre.std()
 
 
-def metrics_4_all(inhale_transform_points_folder_name):
+def metrics_4_all(folder_experiment_landmarks):
+    """
+    Function that computes the TRE individually per patient and save the reults + the mean in a .csv file.
+    Parameters
+    ----------
+    folder_experiment_landmarks: Name of the folder with the transformed landmarks coming from transformix
+    to compute the TRE
+
+    Returns
+    -------
+    .csv file with the TRE results in the the following path:
+    elastix/Outputs_experiments_transformix/folder_experiment_landmarks.
+    """
     thispath = Path.cwd().resolve()
 
-    datadir_inhale = thispath / f"elastix/Outputs_experiments/{inhale_transform_points_folder_name}"
-    datadir_exhale = thispath / "data/train/"
+    datadir_inhale = Path(thispath / f"elastix/Outputs_experiments_transformix/{folder_experiment_landmarks}")
+    datadir_exhale = Path(thispath / "data/train/")
 
     metadata = pd.read_csv(Path("data/copd_metadata.csv"), index_col=0)
     inhale_transform_points = [i for i in datadir_inhale.rglob("*.txt") if "copd" in str(i)]
@@ -66,7 +79,22 @@ def metrics_4_all(inhale_transform_points_folder_name):
 
     metrics_df = pd.DataFrame(patient)
     metrics_df.set_index('Name', inplace=True)
-    metrics_df['mean'] = metrics_df.mean()
+    metrics_df.loc['mean'] = metrics_df.mean()
 
-    metrics_df.to_csv(thispath / "metrics.csv")
-    print("TRE computed and results saved in the metrics.csv file")
+    metrics_df.to_csv(Path(thispath / f"metrics/metrics_{folder_experiment_landmarks}.csv"))
+    print(f"TRE computed and results saved as .csv file in metrics/{folder_experiment_landmarks}")
+
+
+@click.command()
+@click.option(
+    "--folder_experiment_landmarks",
+    default=None,
+    help="Name of the experiment folder coming from transformix with the transformed points of the inhale image of "
+         "all the patients of the dataset",
+)
+def main(folder_experiment_landmarks):
+    metrics_4_all(folder_experiment_landmarks)
+
+
+if __name__ == "__main__":
+    main()
