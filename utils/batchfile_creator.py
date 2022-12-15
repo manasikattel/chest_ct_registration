@@ -12,7 +12,7 @@ def elastix_batch_file(name_experiment, parameter, dataset_option):
     ----------
     name_experiment: Name of the experiment to save elastix results
     parameter: Name of the folder where the elastix parameters files are located in elastix/parameters
-    data_type: Name of the training folder in the folder data to compute the registration of that inhale images.
+    dataset_option: Name of the training folder in the folder data to compute the registration of that inhale images.
 
     Returns
     -------
@@ -98,7 +98,7 @@ def transformix_batch_file(name_experiment_elastix, name_experiment, parameter):
 @click.option(
     "--name_experiment_elastix",
     default=None,
-    help="name of the elastix experiment"
+    help="name of the elastix experiment",
 )
 @click.option(
     "--parameter",
@@ -113,7 +113,7 @@ def transformix_batch_file(name_experiment_elastix, name_experiment, parameter):
 @click.option(
     "--name_experiment_transformix",
     default=None,
-    help="name of the transformix experiment"
+    help="name of the transformix experiment",
 )
 def main(batch_type, name_experiment_elastix, parameter, dataset_option, name_experiment_transformix):
     if batch_type == 'elastix':
