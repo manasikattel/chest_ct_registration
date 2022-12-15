@@ -1,11 +1,11 @@
 from pathlib import Path
-import argparse
+import click
 import pandas as pd
 
 thispath = Path.cwd().resolve()
 
 
-def elastix_batch_file(name_experiment, parameter, data_type):
+def elastix_batch_file(name_experiment, parameter, dataset_option):
     """
     Function to create a .txt file ready to be run as elastix file in the console to perform the registration.
     Parameters
@@ -19,7 +19,7 @@ def elastix_batch_file(name_experiment, parameter, data_type):
     A .txt file in elastix/bat_files with name elastix_name_experiment to run in the console the elastix registration.
     The elastix registration will save the results in the path elastix/Outputs_experiments_elastix/name_experiment
     """
-    datadir = Path(thispath / f"data/{data_type}")
+    datadir = Path(thispath / f"data/{dataset_option}")
     datadir_param = Path(thispath / Path("elastix/parameters") / parameter)
     metadata = pd.read_csv(Path("data/copd_metadata.csv"), index_col=0)
     files_inhale = [i for i in datadir.rglob("*iBHCT.nii.gz") if "copd" in str(i)]
@@ -85,3 +85,43 @@ def transformix_batch_file(name_experiment_elastix, name_experiment, parameter):
         f.write(f"ECHO End registration experiment: {name_experiment} \n")
         f.write("PAUSE")
 
+
+@click.command()
+@click.option(
+    "--batch_type",
+    default="elastix",
+    help="Chose to create an elastix or transfromix file. If elastix the following parameters are needed:"
+         "name_experiment_elastix, parameter, data_type"
+         "If transformix the following parameters are meeded:"
+         "name_experiment_elastix, name_experiment_transformix, parameters",
+)
+@click.option(
+    "--name_experiment_elastix",
+    default=None,
+    help="name of the elastix experiment"
+)
+@click.option(
+    "--parameter",
+    default="Par0007",
+    help="name of the parameter folder; like Par0007, etc",
+)
+@click.option(
+    "--dataset_option",
+    default=None,
+    help="name of the train folder; train, train_NormalizedCLAHE etc",
+)
+@click.option(
+    "--name_experiment_transformix",
+    default=None,
+    help="name of the transformix experiment"
+)
+def main(batch_type, name_experiment_elastix, parameter, dataset_option, name_experiment_transformix):
+    if batch_type == 'elastix':
+        elastix_batch_file(name_experiment_elastix, parameter, dataset_option)
+
+    elif batch_type == 'transformix':
+        transformix_batch_file(name_experiment_elastix, name_experiment_transformix, parameter)
+
+
+if __name__ == "__main__":
+    main()

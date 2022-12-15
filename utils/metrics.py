@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
+import click
 
 
 def TRE_measure(inhale_landmarks, exhale_landmarks, patient_number):
@@ -82,3 +83,18 @@ def metrics_4_all(folder_experiment_landmarks):
 
     metrics_df.to_csv(Path(thispath / f"metrics/metrics_{folder_experiment_landmarks}.csv"))
     print(f"TRE computed and results saved as .csv file in metrics/{folder_experiment_landmarks}")
+
+
+@click.command()
+@click.option(
+    "--folder_experiment_landmarks",
+    default=None,
+    help="Name of the experiment folder coming from transformix with the transformed points of the inhale image of "
+         "all the patients of the dataset",
+)
+def main(folder_experiment_landmarks):
+    metrics_4_all(folder_experiment_landmarks)
+
+
+if __name__ == "__main__":
+    main()
