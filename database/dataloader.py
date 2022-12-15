@@ -1,6 +1,7 @@
 import nibabel as nib
 from pathlib import Path
 import numpy as np
+import pandas as pd
 
 
 def data_loader(data_path):
@@ -32,8 +33,12 @@ def data_loader(data_path):
         landmarks_inhale = [np.loadtxt(lfile[0]).astype(np.int16) for lfile in landmark_files]
         landmarks_exhale = [np.loadtxt(lfile[1]).astype(np.int16) for lfile in landmark_files]
         landmarks = {patient_id[i]: (landmarks_inhale[i], landmarks_exhale[i]) for i in range(len(landmark_files))}
+        landmarks = pd.DataFrame.from_dict(landmarks, orient='index')
+        landmarks = landmarks.rename(columns={0: "inhale", 1: "exhale"})
     else:
         landmark_files = [Path(str(i).replace("iBHCT.nii.gz", "300_iBH_xyz_r1.txt")) for i in images_files_inhale]
         landmarks = {patient_id[i]: np.loadtxt(landmark_files[i]).astype(np.int16) for i in range(len(landmark_files))}
-
+        landmarks = pd.DataFrame.from_dict(landmarks)
+        landmarks = pd.DataFrame.from_dict(landmarks, orient='index')
+        landmarks = landmarks.rename(columns={0: "inhale"})
     return images, landmarks
