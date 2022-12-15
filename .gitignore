@@ -1,5 +1,11 @@
 # Ignore this folders from the project
-data/train
+trash.py
+data/train*
+data_preprocessed/train
+elastix/Outputs_experiments_elastix
+trash.py
+
+
 elastix/Outputs_experiments
 trash.py
 

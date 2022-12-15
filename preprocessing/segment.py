@@ -1,4 +1,3 @@
-from traitlets import default
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
 from skimage import morphology, measure
@@ -95,7 +94,7 @@ def remove_gantry(image, mask, visualize=True):
 def main(train_type):
     datadir = thispath / Path(f"data/{train_type}")
     images_files = [i for i in datadir.rglob("*.nii.gz") if "copd" in str(i)]
-    results_dir = Path("data/train_gantry_removed")
+    results_dir = Path(f"data/{train_type}_gantry_removed")
     results_dir.mkdir(parents=True, exist_ok=True)
     # Read the chest CT scan
     for image_file in tqdm(images_files):
