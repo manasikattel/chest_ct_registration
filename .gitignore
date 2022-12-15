@@ -2,6 +2,8 @@
 data/train
 elastix/Outputs_experiments_elastix
 elastix/Outputs_experiments_transformix
+elastix/parameters
+metrics
 trash.py
 
 
