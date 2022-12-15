@@ -9,12 +9,12 @@ from tqdm import tqdm
 thispath = Path.cwd().resolve()
 
 
-def segment_kmeans(slice, K=3, attempts=10):
-    slice_inv = 255 - slice
+def segment_kmeans(image, K=3, attempts=10):
+    image_inv = 255 - image
 
     # slice_inv = cv2.invert(slice)
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-    vectorized = slice_inv.flatten()
+    vectorized = image_inv.flatten()
     vectorized = np.float32(vectorized) / 255
 
     ret, label, center = cv2.kmeans(
@@ -22,7 +22,7 @@ def segment_kmeans(slice, K=3, attempts=10):
     )
     center = np.uint8(center * 255)
     res = center[label.flatten()]
-    result_image = res.reshape((slice.shape))
+    result_image = res.reshape((image.shape))
     return result_image
 
 
@@ -64,21 +64,22 @@ def fill_chest_cavity(image, vis_each_slice=False):
 def remove_gantry(image, mask, visualize=True):
 
     removed = np.multiply(image, mask)
-    fig, ax = plt.subplots(1, 3, figsize=(10, 5))
+    if visualize:
+        fig, ax = plt.subplots(1, 3, figsize=(10, 5))
 
-    # # Plot the left lung mask
-    ax[0].imshow(image[60, :, :], cmap="gray")
-    ax[0].set_title("image")
+        # # Plot the left lung mask
+        ax[0].imshow(image[60, :, :], cmap="gray")
+        ax[0].set_title("image")
 
-    # # Plot the right lung mask
-    ax[1].imshow(mask[60, :, :], cmap="gray")
-    ax[1].set_title("mask")
+        # # Plot the right lung mask
+        ax[1].imshow(mask[60, :, :], cmap="gray")
+        ax[1].set_title("mask")
 
-    ax[2].imshow(removed[60, :, :], cmap="gray")
-    ax[2].set_title("removed")
+        ax[2].imshow(removed[60, :, :], cmap="gray")
+        ax[2].set_title("removed")
 
-    # # Show the figure
-    plt.show()
+        # # Show the figure
+        plt.show()
     return removed
 
 
