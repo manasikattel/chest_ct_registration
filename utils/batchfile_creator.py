@@ -85,14 +85,3 @@ def transformix_batch_file(name_experiment_elastix, name_experiment, parameter):
         f.write(f"ECHO End registration experiment: {name_experiment} \n")
         f.write("PAUSE")
 
-def main(function):
-    if function == "elastix"
-
-        parser = argparse.ArgumentParser()
-        parser.add_argument(
-            "elastix/trasnformix",
-            help="choose to create the elastix or transformix file")
-
-
-if __name__ == "__main__":
-    main()
