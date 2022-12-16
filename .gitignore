@@ -5,6 +5,7 @@ elastix/Outputs_experiments_transformix
 elastix/parameters
 metrics
 trash.py
+*.bat
 
 
 # Byte-compiled / optimized / DLL files
