@@ -102,7 +102,7 @@ def transformix_batch_file(name_experiment_elastix, name_experiment, parameter):
                                            f"transformix -def {points_inhale}"
             elif "win" in platform:
                 transformix_registration = f"mkdir {output} \n\n" \
-                                           f"elastix -def {points_inhale}"
+                                           f"transformix -def {points_inhale}"
 
             transformix_registration = f"{transformix_registration}" \
                                        f" -out {output}" \
