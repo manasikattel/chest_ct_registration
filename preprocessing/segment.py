@@ -29,12 +29,12 @@ def segment_kmeans(image, K=3, attempts=10):
 
 
 def fill_chest_cavity(image, vis_each_slice=False):
+    image = image.astype(np.uint8)
     filled_image = np.zeros_like(image)
     for i, slice in enumerate(image):
         all_objects, hierarchy = cv2.findContours(
-            slice, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
-        )
-
+               slice, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+            )
         # # Segmented mask
         # # select largest area (should be the skin lesion)
         mask = np.zeros(slice.shape, dtype="uint8")
