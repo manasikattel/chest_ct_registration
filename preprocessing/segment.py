@@ -91,7 +91,13 @@ def remove_gantry(image, mask, visualize=True):
     prompt="Train path",
     help="name of the train folder; train, train_NormalizedCLAHE etc",
 )
-def main(train_type):
+@click.option(
+    "--mask_creation",
+    default=False,
+    prompt="Gantry mask creation(bool)",
+    help="whether to save the binary mask(True) or the CT image with the gantry removed(False) ; False, True",
+)
+def main(train_type, mask_creation):
     datadir = thispath / Path(f"data/{train_type}")
     images_files = [i for i in datadir.rglob("*.nii.gz") if "copd" in str(i)]
     results_dir = Path(f"data/{train_type}_gantry_removed")
@@ -105,12 +111,18 @@ def main(train_type):
         gantry_mask = segmented * (segmented == np.amin(segmented))
         contours = fill_chest_cavity(gantry_mask, vis_each_slice=False)
         removed = remove_gantry(seg_img, contours, visualize=False)
-        img_corr = sitk.GetImageFromArray(removed)
-        img_corr.CopyInformation(ct_image)
-        save_dir = results_dir / Path(image_file.parent.name)
-        save_dir.mkdir(parents=True, exist_ok=True)
-
-        sitk.WriteImage(img_corr, str(Path(save_dir / Path(image_file.name))))
+        if mask_creation:
+            img_corr = sitk.GetImageFromArray(contours)
+            img_corr.CopyInformation(ct_image)
+            save_dir = thispath / Path(f"data/train_segmentation/{Path(image_file.parent.name)}")
+            save_dir.mkdir(parents=True, exist_ok=True)
+            sitk.WriteImage(img_corr, str(Path(save_dir / f'seg_body_{image_file.name}')))
+        else:
+            img_corr = sitk.GetImageFromArray(removed)
+            img_corr.CopyInformation(ct_image)
+            save_dir = results_dir / Path(image_file.parent.name)
+            save_dir.mkdir(parents=True, exist_ok=True)
+            sitk.WriteImage(img_corr, str(Path(save_dir / Path(image_file.name))))
 
 
 if __name__ == "__main__":
