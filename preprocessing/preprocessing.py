@@ -37,10 +37,13 @@ def CT_normalization(lung_images, patient_num, intro_images_description, clahe=T
     inhale = lung_images[0]
     inhale_image = inhale.get_fdata().copy()
     inhale_image = exposure.rescale_intensity(inhale_image, in_range='image', out_range=(-2000, 2000))
+    inhale_image[inhale_image > -2000] = exposure.rescale_intensity(inhale_image[inhale_image > -2000],
+                                                                    in_range='image', out_range=(-1000, 1000))
     exhale = lung_images[1]
     exhale_image = exhale.get_fdata().copy()
     exhale_image = exposure.rescale_intensity(exhale_image, in_range='image', out_range=(-2000, 2000))
-
+    exhale_image[exhale_image > -2000] = exposure.rescale_intensity(exhale_image[exhale_image > -2000],
+                                                                    in_range='image', out_range=(-1000, 1000))
     # Save the contrast enhanced images only if we are just running normalization
     header_in = nib.Nifti1Header()
     inhale_im = nib.Nifti1Image(np.int16(inhale_image), inhale.affine, header_in)
@@ -207,6 +210,7 @@ def main(train_type,preprocessing_type):
             CT_CLAHE((ct_image_inhale, ct_image_exhale), patients[i], f"{train_type}", plothistCLAHE=False)
         if preprocessing_type == 'Normalized_CLAHE':
             CT_normalization((ct_image_inhale, ct_image_exhale), patients[i], f"{train_type}", clahe=True, plothist=False)
+
 
 if __name__ == "__main__":
     main()
