@@ -32,7 +32,7 @@ def elastix_batch_file(name_experiment, parameter, dataset_option, mask=False, m
         files_exhale_seg = [i for i in datadir_seg.rglob(f"*{mask_name}*eBHCT.nii.gz") if f"copd" in str(i)]
     parameters_files = [i for i in datadir_param.rglob("*.txt")]
 
-    with open(Path(thispath / Path(f"elastix/bat_files/elastix_{name_experiment}.txt")), 'w') as f:
+    with open(Path(thispath / Path(f"elastix/bat_files/elastix_{name_experiment}.{'bat' if 'win' in platform else 'sh'}")), 'w') as f:
         f.write(f"ECHO Experiment: {name_experiment}. Registration of the training dataset \n\n")
         for i, image_inhale in enumerate(files_inhale):
             output = Path(thispath / Path("elastix/Outputs_experiments_elastix") / name_experiment / metadata.index[i])
@@ -90,7 +90,7 @@ def transformix_batch_file(name_experiment_elastix, name_experiment, parameter):
     parameters_files = [i for i in datadir_param.rglob("*.txt")]
     number_parameters = len(parameters_files) - 1
 
-    with open(Path(thispath / Path(f"elastix/bat_files/transformix_{name_experiment}.txt")), 'w') as f:
+    with open(Path(thispath / Path(f"elastix/bat_files/transformix_{name_experiment}.{'bat' if 'win' in platform else 'sh'}")), 'w') as f:
         f.write(f"ECHO Experiment: {name_experiment}. Registration of the inhale landmarks \n\n")
         for i, points_inhale in enumerate(landmarks_inhale):
             output = Path(thispath / Path("elastix/Outputs_experiments_transformix") / name_experiment /
