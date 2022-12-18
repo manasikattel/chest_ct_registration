@@ -1,4 +1,4 @@
-import nibabel as nib
+import SimpleITK as sitk
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -15,17 +15,17 @@ def data_loader(data_path):
     Returns
     -------
     images: dictionary
-    Each key contains tuples of the Nifti1Image objects. Format--> patient_id: (inhale, exhale)
+    Each key contains tuples of the SimpleITK.Image objects. Format--> patient_id: (inhale, exhale)
     landmarks: dictionary
     Each key contains tuples of arrays with the landmarks if it is the training set. Format --> patient_id:(inhale, exhale)
     Each key contains the array with the landmark of inhale if it is the test set. Format --> patient_id:inhale
 
     """
     images_files_inhale = [i for i in data_path.rglob("*iBHCT.nii.gz") if "copd" in str(i)]
-    patient_id = [str(i).replace("_iBHCT.nii.gz", "")[-5:] for i in images_files_inhale]
+    patient_id = [Path(str(i).replace("_iBHCT.nii.gz", "")).stem for i in images_files_inhale]
     images_files = [(i, Path(str(i).replace("iBHCT", "eBHCT"))) for i in images_files_inhale]
-    images_inhale = [nib.load(i[0]) for i in images_files]
-    images_exhale = [nib.load(i[1]) for i in images_files]
+    images_inhale = [sitk.ReadImage(i[0]) for i in images_files]
+    images_exhale = [sitk.ReadImage(i[1]) for i in images_files]
     images = {patient_id[i]: (images_inhale[i], images_exhale[i]) for i in range(len(images_files))}
     if "train" in str(data_path):
         landmark_files = [(Path(str(i[0]).replace("iBHCT.nii.gz", "300_iBH_xyz_r1.txt")),
@@ -37,8 +37,7 @@ def data_loader(data_path):
         landmarks = landmarks.rename(columns={0: "inhale", 1: "exhale"})
     else:
         landmark_files = [Path(str(i).replace("iBHCT.nii.gz", "300_iBH_xyz_r1.txt")) for i in images_files_inhale]
-        landmarks = {patient_id[i]: np.loadtxt(landmark_files[i], skiprows=2).astype(np.int16) for i in range(len(landmark_files))}
-        landmarks = pd.DataFrame.from_dict(landmarks)
+        landmarks = {patient_id[i]: [np.loadtxt(landmark_files[i], skiprows=2).astype(np.int16)] for i in range(len(landmark_files))}
         landmarks = pd.DataFrame.from_dict(landmarks, orient='index')
         landmarks = landmarks.rename(columns={0: "inhale"})
     return images, landmarks
