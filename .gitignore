@@ -1,5 +1,6 @@
 # Ignore this folders from the project
 data/train*
+data/test*
 elastix
 metrics
 trash.py
