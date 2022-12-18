@@ -57,10 +57,9 @@ def metrics_4_all(folder_experiment_landmarks):
     datadir_inhale = Path(thispath / f"elastix/Outputs_experiments_transformix/{folder_experiment_landmarks}")
     datadir_exhale = Path(thispath / "data/train/")
 
-    metadata = pd.read_csv(Path("data/copd_metadata.csv"), index_col=0)
     inhale_transform_points = [i for i in datadir_inhale.rglob("*.txt") if "copd" in str(i)]
     patient = []
-    for i, inhale_transform in enumerate(inhale_transform_points):
+    for inhale_transform in inhale_transform_points:
         inhale_point = np.array([i for i in pd.read_csv(inhale_transform,
                                                         sep="=|;",
                                                         header=None, engine='python')[6].apply(
@@ -68,10 +67,10 @@ def metrics_4_all(folder_experiment_landmarks):
         exhale_point = np.loadtxt(
             datadir_exhale / inhale_transform.parent.stem / f"{inhale_transform.parent.stem}_300_eBH_xyz_r1.txt").astype(
             np.int16)
-        mean, std = TRE_measure(inhale_point, exhale_point, metadata.index[i])
+        mean, std = TRE_measure(inhale_point, exhale_point, inhale_transform.parent.stem)
         patient.append(
             {
-                'Name': metadata.index[i],
+                'Name': inhale_transform.parent.stem,
                 'TRE mean': mean,
                 'TRE std': std
             }
@@ -89,6 +88,7 @@ def metrics_4_all(folder_experiment_landmarks):
 @click.option(
     "--folder_experiment_landmarks",
     default=None,
+    prompt="Name of the experiment folder coming from transformix",
     help="Name of the experiment folder coming from transformix with the transformed points of the inhale image of "
          "all the patients of the dataset",
 )
