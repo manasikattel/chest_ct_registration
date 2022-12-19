@@ -3,6 +3,7 @@ data/train*
 data/test*
 elastix
 metrics
+output_points
 trash.py
 *.bat
 
