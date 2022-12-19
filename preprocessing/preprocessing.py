@@ -203,7 +203,6 @@ def main(train_type, preprocessing_type):
     # Read the chest CT scan
     for i in tqdm(range(len(images_files_inhale))):
         ct_image_inhale = sitk.ReadImage(images_files_inhale[i])
-        print(type(ct_image_inhale))
         ct_image_exhale = sitk.ReadImage(images_files_exhale[i])
         if preprocessing_type == 'Normalized':
             CT_normalization((ct_image_inhale, ct_image_exhale), patients[i], f"{train_type}", clahe=False, plothist=False)
