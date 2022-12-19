@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from skimage import exposure
+import SimpleITK as sitk
 
 
 # Histogram matching
@@ -22,14 +23,14 @@ def hist_plotting(lung_images, processed_lung_images, patient_num,
     """
 
     inhale = lung_images[0]
-    inhale_image = inhale.get_fdata()
+    inhale_image = sitk.GetArrayFromImage(inhale)
     exhale = lung_images[1]
-    exhale_image = exhale.get_fdata()
+    exhale_image = sitk.GetArrayFromImage(exhale)
 
     processed_inhale = processed_lung_images[0]
-    processed_inhale_image = processed_inhale.get_fdata()
+    processed_inhale_image = sitk.GetArrayFromImage(processed_inhale)
     processed_exhale = processed_lung_images[1]
-    processed_exhale_image = processed_exhale.get_fdata()
+    processed_exhale_image = sitk.GetArrayFromImage(processed_exhale)
 
     (fig, axs) = plt.subplots(nrows=2, ncols=2, figsize=(8, 8))
     fig.suptitle(f"Lung histograms patient {patient_num}", fontsize=14)
