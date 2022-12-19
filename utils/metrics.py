@@ -56,6 +56,8 @@ def metrics_4_all(folder_experiment_landmarks):
     """
     thispath = Path.cwd().resolve()
 
+    Path(thispath / f'metrics').mkdir(exist_ok=True, parents=True)
+
     datadir_inhale = Path(
         thispath /
         f"elastix/Outputs_experiments_transformix/{folder_experiment_landmarks}"
