@@ -19,12 +19,17 @@ Iniside that folder per patient all the data of that patient is located:
 
 ## Data preprocessing
 ### 1. Transformation of the dataset images from raw format to NIFTI format. 
-The initial data is in the binary/raw format. The `read_raw.py` script assumes that the train data is in directory `data/train`  with the patient wise `.img` inhale and exhale files structured as `copd1`,`copd2`,...etc.
+The initial data is in the binary/raw format. The `read_raw.py` script assumes that the train data is in directory 
+`data/train`  with the patient wise `.img` inhale and exhale files structured as `copd1`,`copd2`,...etc.
 
 - Run `python read_raw.py`, to convert raw test images to  `nii.gz`.
 
-### 2. Normalization and contrast adjustment (CLAHE) of all the images.
-
+### 2. Normalization and local contrast adjustment (CLAHE) of all the images.
+In the `preprocessing/preprocessing.py` file the `CT_normalization` function takes the inhale and exhale volumes and 
+does Min-Max Normalization of the whole volume to scale it to the range of (-2000, 2000) . Then the values that are greater 
+than -2000 are again scaled but this time to the range of (-1000, 1000). This is made to ensure that the values of the voxels belonging 
+to lungs are around -1000 (necessary for U-Net lung segmentation).
+The `CT_normalization` function saves the images in a folder of  
 
 ### 3. Gantry removal
 
@@ -55,7 +60,7 @@ python utils/batchfile_creator.py --batch_type transformix --name_experiment_ela
 --dataset_option -DATASET
 ```
 
-## Compute the metrcics
+## Compute the metrics
 If the exhale landmarks .txt file is provided to check the result coming from the transformation of the inhale
 landmarks. Running the following line of code will create a .csv file in cwd()/metrics computing the mean TRE and std
 TRE per patient and the mean and std of all of them.
