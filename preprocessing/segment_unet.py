@@ -39,8 +39,8 @@ def segment_unet(ct_image):
 @click.option(
     "--data_dir",
     default="train",
-    prompt="Train path",
-    help="name of the train folder; train, train_NormalizedCLAHE etc",
+    prompt="Data path",
+    help="name of the data folder; train, test, train_Normalized_CLAHE etc",
 )
 def get_unet_seg(data_dir):
     datadir = thispath / Path(f"data/{data_dir}")
