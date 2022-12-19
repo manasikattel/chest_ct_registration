@@ -37,10 +37,13 @@ def CT_normalization(lung_images, patient_num, intro_images_description, clahe=T
     inhale = lung_images[0]
     inhale_image = sitk.GetArrayFromImage(inhale)
     inhale_image = exposure.rescale_intensity(inhale_image, in_range='image', out_range=(-2000, 2000))
+    inhale_image[inhale_image > -2000] = exposure.rescale_intensity(inhale_image[inhale_image > -2000],
+                                                                    in_range='image', out_range=(-1000, 1000))
     exhale = lung_images[1]
     exhale_image = sitk.GetArrayFromImage(exhale)
     exhale_image = exposure.rescale_intensity(exhale_image, in_range='image', out_range=(-2000, 2000))
-
+    exhale_image[exhale_image > -2000] = exposure.rescale_intensity(exhale_image[exhale_image > -2000],
+                                                                    in_range='image', out_range=(-1000, 1000))
     # Save the contrast enhanced images only if we are just running normalization
     inhale_im = sitk.GetImageFromArray(np.int16(inhale_image))
     inhale_im.CopyInformation(lung_images[0])
@@ -200,7 +203,6 @@ def main(train_type, preprocessing_type):
     # Read the chest CT scan
     for i in tqdm(range(len(images_files_inhale))):
         ct_image_inhale = sitk.ReadImage(images_files_inhale[i])
-        print(type(ct_image_inhale))
         ct_image_exhale = sitk.ReadImage(images_files_exhale[i])
         if preprocessing_type == 'Normalized':
             CT_normalization((ct_image_inhale, ct_image_exhale), patients[i], f"{train_type}", clahe=False, plothist=False)
