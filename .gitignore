@@ -1,8 +1,7 @@
 # Ignore this folders from the project
 data/train*
-elastix/Outputs_experiments_elastix
-elastix/Outputs_experiments_transformix
-elastix/parameters
+data/test*
+elastix
 metrics
 trash.py
 *.bat

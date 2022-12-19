@@ -1,9 +1,9 @@
-import nibabel as nib
 from pathlib import Path
 from skimage import exposure
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
+import SimpleITK as sitk
 import click
 
 
@@ -16,7 +16,7 @@ def CT_normalization(lung_images, patient_num, intro_images_description, clahe=T
     Parameters
     ----------
     lung_images: tuple
-    Contains the lung images for the patient.
+    Contains the lung images for the patient (SimpleITK.Image).
     In the first position inhale image, in the second position exhale image.
     patient_num: str
     patient ID
@@ -30,33 +30,33 @@ def CT_normalization(lung_images, patient_num, intro_images_description, clahe=T
     Returns
     -------
     This function saves the inhale and exhale images in a created
-    subdirectory in data/train_Normalized
+    subdirectory in data/intro_images_description_Normalized
     normalized_lung_image: tuple
-    List of Nifti1Image objects. In the first position inhale image, in the second position exhale image.
+    SimpleITK.Image objects. In the first position inhale image, in the second position exhale image.
     """
     inhale = lung_images[0]
-    inhale_image = inhale.get_fdata().copy()
+    inhale_image = sitk.GetArrayFromImage(inhale)
     inhale_image = exposure.rescale_intensity(inhale_image, in_range='image', out_range=(-2000, 2000))
     inhale_image[inhale_image > -2000] = exposure.rescale_intensity(inhale_image[inhale_image > -2000],
                                                                     in_range='image', out_range=(-1000, 1000))
     exhale = lung_images[1]
-    exhale_image = exhale.get_fdata().copy()
+    exhale_image = sitk.GetArrayFromImage(exhale)
     exhale_image = exposure.rescale_intensity(exhale_image, in_range='image', out_range=(-2000, 2000))
     exhale_image[exhale_image > -2000] = exposure.rescale_intensity(exhale_image[exhale_image > -2000],
                                                                     in_range='image', out_range=(-1000, 1000))
     # Save the contrast enhanced images only if we are just running normalization
-    header_in = nib.Nifti1Header()
-    inhale_im = nib.Nifti1Image(np.int16(inhale_image), inhale.affine, header_in)
-    header_ex = nib.Nifti1Header()
-    exhale_im = nib.Nifti1Image(np.int16(exhale_image), exhale.affine, header_ex)
+    inhale_im = sitk.GetImageFromArray(np.int16(inhale_image))
+    inhale_im.CopyInformation(lung_images[0])
+    exhale_im = sitk.GetImageFromArray(np.int16(exhale_image))
+    exhale_im.CopyInformation(lung_images[1])
     if not clahe:
         dataset_ = intro_images_description.split('_')[0]
         savingpath = thispath / f"data/{dataset_}{intro_images_description.replace(f'{dataset_}', '')}_Normalized/{patient_num}"
         Path(savingpath).mkdir(exist_ok=True, parents=True)
-        nib.save(inhale_im,
-                 Path(savingpath / f'{patient_num}_iBHCT.nii.gz'))
-        nib.save(exhale_im,
-                 Path(savingpath / f'{patient_num}_eBHCT.nii.gz'))
+        sitk.WriteImage(inhale_im,
+                        str(Path(savingpath / f'{patient_num}_iBHCT.nii.gz')))
+        sitk.WriteImage(exhale_im,
+                        str(Path(savingpath / f'{patient_num}_eBHCT.nii.gz')))
 
     normalized_lung_image = (inhale_im, exhale_im)
 
@@ -76,7 +76,7 @@ def CT_CLAHE(lung_images, patient_num, intro_images_description, plothistCLAHE=F
         ----------
 
         lung_images: tuple
-        Contains the lung images for the patient.
+        Contains the lung images for the patient (SimpleITK.Image).
         In the first position inhale image, in the second position exhale image.
         patient_num: str
         intro_images_description: str
@@ -91,16 +91,16 @@ def CT_CLAHE(lung_images, patient_num, intro_images_description, plothistCLAHE=F
         This function saves the inhale and exhale images in a created 
         subdirectory in data/train_intro_images_description_CLAHE
         CLAHE_lung_images: tuple
-        List of Nifti1Image objects. In the first position inhale image, in the second position exhale image.
+        SimpleITK.Image objects. In the first position inhale image, in the second position exhale image.
         """
     dataset_ = intro_images_description.split('_')[0]
     savingpath = thispath / f"data/{dataset_}{intro_images_description.replace(f'{dataset_}','')}_CLAHE/{patient_num}"
     Path(savingpath).mkdir(exist_ok=True, parents=True)
 
     inhale = lung_images[0]
-    inhale_image = inhale.get_fdata()
+    inhale_image = sitk.GetArrayFromImage(inhale)
     exhale = lung_images[1]
-    exhale_image = exhale.get_fdata()
+    exhale_image = sitk.GetArrayFromImage(exhale)
 
     kernelsize = np.array((inhale_image.shape[0] // 5,
                            inhale_image.shape[1] // 5,
@@ -117,15 +117,15 @@ def CT_CLAHE(lung_images, patient_num, intro_images_description, plothistCLAHE=F
     exhale_CLAHE = exposure.rescale_intensity(exhale_CLAHE, in_range='image',
                                               out_range=(np.amin(exhale_image), np.amax(exhale_image)))
 
-    header_in = nib.Nifti1Header()
-    inhale_im = nib.Nifti1Image(np.float32(inhale_CLAHE), inhale.affine, header_in)
-    nib.save(inhale_im,
-             Path(savingpath/f'{patient_num}_iBHCT.nii.gz'))
-    header_ex = nib.Nifti1Header()
-    exhale_im = nib.Nifti1Image(np.float32(exhale_CLAHE), exhale.affine, header_ex)
-    nib.save(exhale_im,
-             Path(savingpath/f'{patient_num}_eBHCT.nii.gz'))
-
+    inhale_im = sitk.GetImageFromArray(np.int16(inhale_CLAHE))
+    inhale_im.CopyInformation(lung_images[0])
+    exhale_im = sitk.GetImageFromArray(np.int16(exhale_CLAHE))
+    exhale_im.CopyInformation(lung_images[1])
+    sitk.WriteImage(inhale_im,
+                    str(Path(savingpath / f'{patient_num}_iBHCT.nii.gz')))
+    sitk.WriteImage(exhale_im,
+                    str(Path(savingpath / f'{patient_num}_eBHCT.nii.gz')))
+    # inhale_im = nib.Nifti1Image(np.float32(inhale_CLAHE), inhale.affine, header_in)
     CLAHE_lung_images = (inhale_im, exhale_im)
 
     if plothistCLAHE:
@@ -192,7 +192,7 @@ def hist_plotting(lung_images, processed_lung_images, patient_num, image_titles)
     prompt="Preprocessing Technique:",
     help="Name of the preprocessing to be done;Normalized,CLAHE or Normalized_CLAHE",
 )
-def main(train_type,preprocessing_type):
+def main(train_type, preprocessing_type):
 
     datadir = thispath / Path(f"data/{train_type}")
     patients = [x.stem for x in datadir.iterdir() if x.is_dir()]
@@ -202,8 +202,9 @@ def main(train_type,preprocessing_type):
     results_dir.mkdir(parents=True, exist_ok=True)
     # Read the chest CT scan
     for i in tqdm(range(len(images_files_inhale))):
-        ct_image_inhale = nib.load(images_files_inhale[i])
-        ct_image_exhale = nib.load(images_files_exhale[i])
+        ct_image_inhale = sitk.ReadImage(images_files_inhale[i])
+        print(type(ct_image_inhale))
+        ct_image_exhale = sitk.ReadImage(images_files_exhale[i])
         if preprocessing_type == 'Normalized':
             CT_normalization((ct_image_inhale, ct_image_exhale), patients[i], f"{train_type}", clahe=False, plothist=False)
         if preprocessing_type == 'CLAHE':
