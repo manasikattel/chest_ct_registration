@@ -1,8 +1,21 @@
 # Chest CT registration
 
-## IMPORTANT: Add at the top of the inhale landmarks .txt files the following rows:
+## IMPORTANT DATA STRUCURE
+
+### Add at the top of the inhale landmarks .txt files the following rows:
 index\
 300 (number of landmarks)
+* necessary for transformix to be able to read the inhale landmarks .txt files correctly.
+
+### Structure the data in our project folder
+The data in the cwd() of the project must be in the following Path: cwd()/data/YOUR_DATASET
+
+Inside your_dataset folder one folder is created for each patient with the following name: copdX.
+Iniside that folder per patient all the data of that patient is located:
+* copdX_300_eBH_xyz_r1.txt
+* copdX_300_iBH_xyz_r1.txt
+* copdX_eBHCT.img
+* copdX_iBHCT.img
 
 ## Data preprocessing
 ### 1. Transformation of the dataset images from raw format to NIFTI format. 
@@ -26,8 +39,8 @@ By running the function call "elastix_batch_file" located in utils/batchfilecrea
 a system file is created (.bat or .sh depending of OS). This elastix file is ready to perform
 the registration in the desired dataset folder. 
 ```
-python utils/batchfile_creator.py --batch_type elastix --name_experiment_elastix -name_experiment_elastix --parameter
-parameter_folder --dataset_option -dataset --mask -boolean --mask_name -desired_mask
+python utils/batchfile_creator.py --batch_type elastix --name_experiment_elastix NAME_EXPERIMENT --parameter
+PARAMETER_FOLDER --dataset_option -DATASET --mask BOOLEAN --mask_name -MASK_NAME
 
 ```
 
@@ -37,7 +50,16 @@ a system file is created (.bat or .sh depending of OS). This elastix file is rea
 the transformation of the inhale landmarks aaplying the TransformationParameters that outputs the registration of 
 the images performed by elastix.
 ```
-python utils/batchfile_creator.py --batch_type transformix --name_experiment_elastix name_experiment_elastix
---parameter parameter_folder --name_experiment_transformix -name_experiment_transformix
---dataset_option_transformix -dataset
+python utils/batchfile_creator.py --batch_type transformix --name_experiment_elastix NAME_EXPERIMENT
+--parameter PARAMETER_FOLDER --name_experiment_transformix -name_experiment_transformix
+--dataset_option -DATASET
+```
+
+## Compute the metrcics
+If the exhale landmarks .txt file is provided to check the result coming from the transformation of the inhale
+landmarks. Running the following line of code will create a .csv file in cwd()/metrics computing the mean TRE and std
+TRE per patient and the mean and std of all of them.
+```
+python utils/metrics.py --folder_experiment_landmarks -FOLDER_NAME_OUTPUT_TRANSFORMIX
+
 ```
