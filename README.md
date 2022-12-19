@@ -1,11 +1,12 @@
 # Chest CT registration
+This repository contains the code for registration of Chest CT done from inspiratory to expiratory breath-hold CT image pairs. The dataset used is [COPDGene](https://med.emory.edu/departments/radiation-oncology/research-laboratories/deformable-image-registration/downloads-and-reference-data/copdgene.html) dataset. The dataset has landmarks for all the images which are used to calculate the registration error.
 
 ## IMPORTANT DATA STRUCURE
-
+The data must be organized as follows:
 ### Add at the top of the inhale landmarks .txt files the following rows:
 index\
 300 (number of landmarks)
-* necessary for transformix to be able to read the inhale landmarks .txt files correctly.
+* This is necessary for transformix to be able to read the inhale landmarks .txt files correctly.
 
 ### Structure the data in our project folder
 The data in the cwd() of the project must be in the following Path: cwd()/data/YOUR_DATASET
@@ -20,22 +21,27 @@ Iniside that folder per patient all the data of that patient is located:
 ## Data preprocessing
 ### 1. Transformation of the dataset images from raw format to NIFTI format. 
 The initial data is in the binary/raw format. The `read_raw.py` script assumes that the train data is in directory 
-`data/train`  with the patient wise `.img` inhale and exhale files structured as `copd1`,`copd2`,...etc.
+`data/train`  with the patient wise `.img` inhale and exhale files structured as `copd1`,`copd2`,...etc. Make sure that the metadata information such as image dimensions and voxel spacings are present in `copd_metadata.csv`.
 
-- Run `python read_raw.py`, to convert raw test images to  `nii.gz`.
+- Run `python read_raw.py --dataset_option test`, to convert raw test images to  `nii.gz`.
 
 ### 2. Normalization and local contrast adjustment (CLAHE) of all the images.
-In the `preprocessing/preprocessing.py` file the `CT_normalization` function takes the inhale and exhale volumes and 
-does Min-Max Normalization of the whole volume to scale it to the range of (-2000, 2000) . Then the values that are greater 
+In the `preprocessing/preprocessing.py`,file the `CT_normalization` function takes the inhale and exhale volumes and 
+does Min-Max Normalization of the whole volume to scale it to the range of (-2000, 2000). Then the values that are greater 
 than -2000 are again scaled but this time to the range of (-1000, 1000). This is made to ensure that the values of the voxels belonging 
-to lungs are around -1000 (necessary for U-Net lung segmentation).
-The `CT_normalization` function saves the images in a folder of  
+to air are around -1000 (necessary for U-Net lung segmentation).
+The `CT_normalization` function saves the images in a folder of  `<dataset_option>_<preprocessing_type>`. The preprocessing types available are Normalized, CLAHE and Normalized_CLAHE. From series of experiments, we have chosen Normalized CLAHE for our use case.
+
 
 ### 3. Gantry removal
-
+`preprocessing/segment.py` performs gantry removal on the images. Gantry mask is obtained using k-means clustering followed by post-processing using morphological operations and area filtering of contours. The gantry removed images are saved in `<dataset_option>_gantry_removed`.
 
 ### 4. Segmentation of the lungs
+Two methods have been implemented for segmentation of the lungs inside the gantry.
+1. k-means segmentation followed by morphological operations
+2. U-Net based segmentation adapted from https://github.com/JoHof/lungmask.
 
+U-Net based segmentation, as expected, performs better. However, for any back-up cases our segmentation method can be used.
 
 ## Registration
 
