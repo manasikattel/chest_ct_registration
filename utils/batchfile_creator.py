@@ -24,6 +24,9 @@ def elastix_batch_file(name_experiment,
     A .txt file in elastix/bat_files with name elastix_name_experiment to run in the console the elastix registration.
     The elastix registration will save the results in the path elastix/Outputs_experiments_elastix/name_experiment
     """
+    Path(thispath / f'elastix/bat_files').mkdir(exist_ok=True, parents=True)
+    Path(thispath / f'elastix/Outputs_experiments_elastix').mkdir(exist_ok=True, parents=True)
+
     datadir = Path(thispath / f"data/{dataset_option}")
     datadir_param = Path(thispath / Path("elastix/parameters") / parameter)
     files_inhale = [
@@ -116,6 +119,9 @@ def transformix_batch_file(name_experiment, parameter, dataset_option):
     transformation of a set of landmarks. The new landmarks results are saved in the path
     elastix/Outputs_experiments_transformix/name_experiment
     """
+    Path(thispath / f'elastix/bat_files').mkdir(exist_ok=True, parents=True)
+    Path(thispath / f'elastix/Outputs_experiments_transformix').mkdir(exist_ok=True, parents=True)
+
     if "train" in dataset_option:
         datadir = Path(thispath / f"data/train")
     elif "test" in dataset_option:
