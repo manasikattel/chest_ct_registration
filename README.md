@@ -56,6 +56,8 @@ Two methods have been implemented for segmentation of the lungs inside the gantr
 
 U-Net based segmentation, as expected, performs better. However, for any back-up cases our segmentation method can be used.
 
+![alt text](figures/segmentation.png "Segmentation")
+
 ## Registration
 
 ### 1. Registration of the images (fixed image: inhale, moving image: exhale) using elastix.
