@@ -19,6 +19,7 @@ def save_output_points(folder_experiment_landmarks):
     A .txt file that is saved in cwd()/output_points with the transformed landmarks.
     """
     Path(thispath / "output_points").mkdir(exist_ok=True, parents=True)
+    Path(thispath / "output_points" / folder_experiment_landmarks).mkdir(exist_ok=True, parents=True)
 
     datadir_outputs = Path(thispath / f"elastix/Outputs_experiments_transformix/{folder_experiment_landmarks}")
 
@@ -31,7 +32,10 @@ def save_output_points(folder_experiment_landmarks):
             lambda x: x.strip().split("]")[0].split("[")[1].split(" ")[1:4])]).astype(np.int16)
         np.savetxt(Path(thispath /
                         "output_points" /
+                        folder_experiment_landmarks /
                         f"{landmarks.parent.stem}_outputpoints.txt"), transformed_landmarks, fmt='%i', delimiter=' ')
+
+    print(f"Landmarks transformed saved as .txt file in the folder output_points/{folder_experiment_landmarks}")
 
 
 @click.command()
