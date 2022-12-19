@@ -15,7 +15,7 @@ def elastix_batch_file(name_experiment,
     Function to create a .txt file ready to be run as elastix file in the console to perform the registration.
     Parameters
     ----------
-    name_experiment: Name of the experiment to save elastix results
+    name_experiment: Name of the experiment to save elastix results.
     parameter: Name of the folder where the elastix parameters files are located in elastix/parameters
     dataset_option: Name of the training folder in the folder data to compute the registration of that inhale images.
 
@@ -66,7 +66,7 @@ def elastix_batch_file(name_experiment,
         for i, image_inhale in enumerate(files_inhale):
             output = Path(thispath /
                           Path("elastix/Outputs_experiments_elastix") /
-                          name_experiment / image_inhale.stem[0:5])
+                          name_experiment / image_inhale.stem.split('_', 1)[0])
 
             if "darwin" in platform:
                 elastix_registration = f"mkdir -p {output} \n\n" \
@@ -91,21 +91,20 @@ def elastix_batch_file(name_experiment,
                 elastix_registration = f"{elastix_registration}" \
                                        f" -p {param}" \
 
-            f.write(f"ECHO Patient: {image_inhale.stem[0:5]}\n\n")
+            f.write(f"ECHO Patient: {image_inhale.stem.split('_', 1)[0]}\n\n")
             f.write(f"{elastix_registration}\n\n")
         f.write(f"ECHO End registration experiment: {name_experiment}\n")
         f.write("PAUSE")
 
 
-def transformix_batch_file(name_experiment_elastix, name_experiment, parameter,
-                           dataset_option):
+def transformix_batch_file(name_experiment, parameter, dataset_option):
     """
     Function to create a .txt file ready to be run as elastix file in the console to perform the registration of
     a set of landmarks using the transformation used to perform the registration using transformix command.
     Parameters
     ----------
-    name_experiment_elastix: Name of the folder with the registration result coming from elastix
-    name_experiment: Name of the experiment to save transformix results
+    name_experiment: Name of the experiment to save transformix results and get results coming from elastix
+    registration.
     parameter: Name of the folder with the parameters in elastix/parameters
     dataset_option: set to train if you use any dataset of train images (train, train_Normalized_CLAHE, etc), set to
     test if you use any test dataset.
@@ -116,7 +115,11 @@ def transformix_batch_file(name_experiment_elastix, name_experiment, parameter,
     transformation of a set of landmarks. The new landmarks results are saved in the path
     elastix/Outputs_experiments_transformix/name_experiment
     """
-    datadir = Path(thispath / f"data/{dataset_option}")
+    if "train" in dataset_option:
+        datadir = Path(thispath / f"data/train")
+    elif "test" in dataset_option:
+        datadir = Path(thispath / f"data/test")
+
     datadir_param = Path(thispath / Path("elastix/parameters") / parameter)
 
     landmarks_inhale = [
@@ -135,10 +138,10 @@ def transformix_batch_file(name_experiment_elastix, name_experiment, parameter,
         for points_inhale in landmarks_inhale:
             output = Path(thispath /
                           Path("elastix/Outputs_experiments_transformix") /
-                          name_experiment / points_inhale.stem[0:5])
+                          name_experiment / points_inhale.stem.split('_', 1)[0])
             param = Path(thispath /
                          Path("elastix/Outputs_experiments_elastix") /
-                         name_experiment_elastix / points_inhale.stem[0:5] /
+                         name_experiment / points_inhale.stem.split('_', 1)[0] /
                          Path(f"TransformParameters.{number_parameters}.txt"))
             if "darwin" in platform:
                 transformix_registration = f"mkdir -p {output} \n\n" \
@@ -151,7 +154,7 @@ def transformix_batch_file(name_experiment_elastix, name_experiment, parameter,
                                        f" -out {output}" \
                                        f" -tp {param} \n\n"
 
-            f.write(f"ECHO Patient: {points_inhale.stem[0:5]} \n\n")
+            f.write(f"ECHO Patient: {points_inhale.stem.split('_', 1)[0]} \n\n")
             f.write(transformix_registration)
         f.write(f"ECHO End registration experiment: {name_experiment} \n")
         f.write("PAUSE")
@@ -162,30 +165,25 @@ def transformix_batch_file(name_experiment_elastix, name_experiment, parameter,
     "--batch_type",
     default="elastix",
     help=
-    "Chose to create an elastix or transfromix file. If elastix the following parameters are needed:"
-    "name_experiment_elastix, parameter, data_type"
+    "Chose to create an elastix or transformix system file. If elastix the following parameters are needed:"
+    "name_experiment, parameter, dataset_option and optionally mask and mask_name"
     "If transformix the following parameters are meeded:"
-    "name_experiment_elastix, name_experiment_transformix, parameters",
+    "name_experiment, parameters, dataset_option",
 )
 @click.option(
-    "--name_experiment_elastix",
+    "--name_experiment",
     default=None,
-    help="name of the elastix experiment",
+    help="name of the experiment to set name of system files and folder name of the results.",
 )
 @click.option(
     "--parameter",
-    default="Par0007",
+    default=None,
     help="name of the parameter folder; like Par0007, etc",
 )
 @click.option(
     "--dataset_option",
     default=None,
-    help="name of the train folder; train, train_NormalizedCLAHE etc",
-)
-@click.option(
-    "--name_experiment_transformix",
-    default=None,
-    help="name of the transformix experiment",
+    help="name of the train folder; train, train_NormalizedCLAHE, test, etc",
 )
 @click.option(
     "--mask",
@@ -195,25 +193,15 @@ def transformix_batch_file(name_experiment_elastix, name_experiment, parameter,
 @click.option(
     "--mask_name",
     default=None,
-    help="name of the mask wanted between either lung or full body",
+    help="If mask == True, name of the mask to be used in registration between either lung_our, lung_unet or body",
 )
-@click.option(
-    "--dataset_option_transformix",
-    default="train",
-    help=
-    "train or test depending if you are using any train or test dataset option for the registration",
-)
-def main(batch_type, name_experiment_elastix, parameter, dataset_option,
-         name_experiment_transformix, mask, mask_name,
-         dataset_option_transformix):
+def main(batch_type, name_experiment, parameter, dataset_option, mask, mask_name):
     if batch_type == 'elastix':
-        elastix_batch_file(name_experiment_elastix, parameter, dataset_option,
+        elastix_batch_file(name_experiment, parameter, dataset_option,
                            mask, mask_name)
 
     elif batch_type == 'transformix':
-        transformix_batch_file(name_experiment_elastix,
-                               name_experiment_transformix, parameter,
-                               dataset_option_transformix)
+        transformix_batch_file(name_experiment, parameter, dataset_option)
 
 
 if __name__ == "__main__":
