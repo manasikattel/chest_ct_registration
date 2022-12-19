@@ -1,13 +1,23 @@
-import argparse
-import os
-import tempfile
-import pandas as pd
 import SimpleITK as sitk
 from pathlib import Path
+import click
 from utils import get_image_info, read_raw
 
 
-def save_rawtositk(datadir, metadata_file):
+@click.command()
+@click.option(
+    "--dataset_option",
+    default="train",
+    help=
+    "Name of the train/test folder containing the images to convert raw to nii.gz",
+)
+@click.option(
+    "--metadata_file",
+    default="data/copd_metadata.csv",
+    help="Path to metadata file",
+)
+def save_rawtositk(dataset_option, metadata_file):
+    datadir = Path("data") / Path(dataset_option)
     metadata_dict = get_image_info(metadata_file)
     raw_images_names = [i for i in datadir.rglob("*.img") if "copd" in str(i)]
     for raw_name in raw_images_names:
@@ -25,6 +35,4 @@ def save_rawtositk(datadir, metadata_file):
 
 
 if __name__ == "__main__":
-    datadir = Path("data/train")
-    metadata_file = "data/copd_metadata.csv"
-    save_rawtositk(datadir, metadata_file)
+    save_rawtositk()
