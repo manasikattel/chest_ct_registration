@@ -148,6 +148,30 @@ def get_lung_segmentation(segmented, gantry_mask, visualize=False):
     return dilated
 
 
+def get_gantry_removed(image):
+    """
+    Get gantry removed image
+
+    Parameters
+    ----------
+    image : sitk image
+        Sitk Image of the lung CT
+
+    Returns
+    -------
+    ndarray
+        Numpy array with gantry removed image
+    """
+    img_255 = sitk.Cast(sitk.RescaleIntensity(image), sitk.sitkUInt8)
+    seg_img = sitk.GetArrayFromImage(img_255)
+    segmented = segment_kmeans(seg_img)
+    removed, gantry_mask = remove_gantry(seg_img, segmented, visualize=False)
+    removed_im = sitk.GetImageFromArray(np.int16(removed))
+    removed_im.CopyInformation(image)
+
+    return removed_im
+
+
 @click.command()
 @click.option(
     "--train_type",
