@@ -64,8 +64,8 @@ U-Net based segmentation, as expected, performs better. However, for any back-up
 By running the function call "elastix_batch_file" located in `utils/batchfilecreator.py`, a system file is created (.bat or .sh depending on the OS). This elastix file is ready to perform
 the registration in the desired dataset folder. 
 ```
-python utils/batchfile_creator.py --batch_type elastix --name_experiment_elastix NAME_EXPERIMENT --parameter
-PARAMETER_FOLDER --dataset_option -DATASET --mask BOOLEAN --mask_name -MASK_NAME
+python utils/batchfile_creator.py --batch_type elastix --name_experiment NAME_EXPERIMENT
+ --parameter PARAMETER_FOLDER --dataset_option -DATASET --mask BOOLEAN --mask_name -MASK_NAME
 
 ```
 
@@ -74,9 +74,8 @@ By running the function call "transformix_batch_file" located in `utils/batchfil
 the transformation of the inhale landmarks aaplying the TransformationParameters that outputs the registration of 
 the images performed by elastix.
 ```
-python utils/batchfile_creator.py --batch_type transformix --name_experiment_elastix NAME_EXPERIMENT
---parameter PARAMETER_FOLDER --name_experiment_transformix -name_experiment_transformix
---dataset_option -DATASET
+python utils/batchfile_creator.py --batch_type transformix --name_experiment NAME_EXPERIMENT
+--parameter PARAMETER_FOLDER --dataset_option -DATASET
 ```
 
 ## Compute the metrics
