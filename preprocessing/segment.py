@@ -7,7 +7,7 @@ from pathlib import Path
 from tqdm import tqdm
 import click
 from datetime import datetime
-from .utils import segment_kmeans, remove_small_3D
+from utils import segment_kmeans, remove_small_3D
 
 thispath = Path.cwd().resolve()
 
@@ -162,7 +162,20 @@ def get_lung_segmentation(segmented, gantry_mask, visualize=False):
     help=
     "whether to save the binary mask(True) or the CT image with the gantry removed(False) ; False, True",
 )
-def main(train_type, mask_creation):
+@click.option(
+    "--save_gantry_removed",
+    default=True,
+    help="whether to save the gantry removed image; False, True",
+)
+@click.option(
+    "--save_lung_mask",
+    default=True,
+    help="whether to save the lung mask ; False, True",
+)
+def main(train_type,
+         mask_creation=False,
+         save_gantry_removed=True,
+         save_lung_mask=True):
     datadir = thispath / Path(f"data/{train_type}")
     images_files = [i for i in datadir.rglob("*.nii.gz") if "copd" in str(i)]
     results_dir = Path(f"data/{train_type}_gantry_removed")
@@ -177,8 +190,6 @@ def main(train_type, mask_creation):
                                              segmented,
                                              visualize=False)
         lung_mask = get_lung_segmentation(segmented, gantry_mask)
-        save_gantry_removed = True
-        save_lung_mask = True
 
         if save_lung_mask:
             lung_mask = sitk.GetImageFromArray(lung_mask.astype(np.uint8))
