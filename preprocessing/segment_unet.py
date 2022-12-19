@@ -26,7 +26,8 @@ def segment_unet(data_dir="train_gantry_removed"):
     """
     datadir = thispath / Path(f"data/{data_dir}")
     images_files = [i for i in datadir.rglob("*.nii.gz") if "copd" in str(i)]
-    results_dir = thispath / Path(f"data/train_segmentation_unet")
+    dataset_ = data_dir.split('_')[0]
+    results_dir = thispath / Path(f"data/{dataset_}_segmentations")
     results_dir.mkdir(parents=True, exist_ok=True)
     # Read the chest CT scan
     for image_file in tqdm(images_files):
@@ -54,7 +55,7 @@ def segment_unet(data_dir="train_gantry_removed"):
             str(
                 Path(
                     save_dir /
-                    Path(f"seg_lung_{image_file.stem.split('.')[0]}.nii.gz"))))
+                    Path(f"seg_lung_unet_{image_file.stem.split('.')[0]}.nii.gz"))))
 
 
 if __name__ == "__main__":
