@@ -44,10 +44,12 @@ does Min-Max Normalization of the whole volume to scale it to the range of (-200
 than -2000 are again scaled but this time to the range of (-1000, 1000). This is made to ensure that the values of the voxels belonging 
 to air are around -1000 (necessary for U-Net lung segmentation).
 The `CT_normalization` function saves the images in a folder of  `<dataset_option>_<preprocessing_type>`. The preprocessing types available are Normalized, CLAHE and Normalized_CLAHE. From series of experiments, we have chosen Normalized CLAHE for our use case.
+![alt text](figures/clahe.png "CE")
 
 
 ### 3. Gantry removal
 `preprocessing/segment.py` performs gantry removal on the images. Gantry mask is obtained using k-means clustering followed by post-processing using morphological operations and area filtering of contours. The gantry removed images are saved in `data/<dataset_option>_gantry_removed`.
+![alt text](figures/gantry_removed.png "Gantry removed")
 
 ### 4. Segmentation of the lungs
 Two methods have been implemented for segmentation of the lungs inside the gantry.
