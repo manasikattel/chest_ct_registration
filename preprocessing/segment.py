@@ -174,10 +174,10 @@ def get_gantry_removed(image):
 
 @click.command()
 @click.option(
-    "--train_type",
+    "--data_dir",
     default="train",
-    prompt="Train path",
-    help="name of the train folder; train, train_NormalizedCLAHE etc",
+    prompt="Data path",
+    help="name of the data folder; train, test, train_NormalizedCLAHE etc",
 )
 @click.option(
     "--mask_creation",
@@ -196,13 +196,13 @@ def get_gantry_removed(image):
     default=True,
     help="whether to save the lung mask ; False, True",
 )
-def main(train_type,
+def main(data_dir,
          mask_creation=False,
          save_gantry_removed=True,
          save_lung_mask=True):
-    datadir = thispath / Path(f"data/{train_type}")
+    datadir = thispath / Path(f"data/{data_dir}")
     images_files = [i for i in datadir.rglob("*.nii.gz") if "copd" in str(i)]
-    results_dir = Path(f"data/{train_type}_gantry_removed")
+    results_dir = Path(f"data/{data_dir}_gantry_removed")
     results_dir.mkdir(parents=True, exist_ok=True)
     # Read the chest CT scan
     for image_file in tqdm(images_files):
@@ -218,18 +218,19 @@ def main(train_type,
         if save_lung_mask:
             lung_mask = sitk.GetImageFromArray(lung_mask.astype(np.uint8))
             lung_mask.CopyInformation(ct_image)
+            dataset_ = data_dir.split('_')[0]
             save_dir = thispath / Path(
-                f"data/{train_type}_segmentation_ours/{Path(image_file.parent.name)}"
+                f"data/{dataset_}_segmentations/{Path(image_file.parent.name)}"
             )
             save_dir.mkdir(parents=True, exist_ok=True)
             sitk.WriteImage(
-                lung_mask, str(Path(save_dir / f'seg_lung_{image_file.name}')))
+                lung_mask, str(Path(save_dir / f'seg_lung_ours_{image_file.name}')))
 
         if save_gantry_removed:
             removed_sitk = sitk.GetImageFromArray(removed)
             removed_sitk.CopyInformation(ct_image)
             save_dir = thispath / Path(
-                f"data/{train_type}_gantry_removed/{Path(image_file.parent.name)}"
+                f"data/{data_dir}_gantry_removed/{Path(image_file.parent.name)}"
             )
             save_dir.mkdir(parents=True, exist_ok=True)
             sitk.WriteImage(removed_sitk,
