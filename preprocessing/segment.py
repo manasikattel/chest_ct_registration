@@ -213,9 +213,9 @@ def main(data_dir,
         removed, gantry_mask = remove_gantry(seg_img,
                                              segmented,
                                              visualize=False)
-        lung_mask = get_lung_segmentation(segmented, gantry_mask)
 
         if save_lung_mask:
+            lung_mask = get_lung_segmentation(segmented, gantry_mask)
             lung_mask = sitk.GetImageFromArray(lung_mask.astype(np.uint8))
             lung_mask.CopyInformation(ct_image)
             dataset_ = data_dir.split('_')[0]
@@ -224,7 +224,8 @@ def main(data_dir,
             )
             save_dir.mkdir(parents=True, exist_ok=True)
             sitk.WriteImage(
-                lung_mask, str(Path(save_dir / f'seg_lung_ours_{image_file.name}')))
+                lung_mask,
+                str(Path(save_dir / f'seg_lung_ours_{image_file.name}')))
 
         if save_gantry_removed:
             removed_sitk = sitk.GetImageFromArray(removed)
