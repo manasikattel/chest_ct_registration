@@ -36,7 +36,7 @@ def elastix_batch_file(name_experiment,
     files_exhale = [
         i for i in datadir.rglob("*eBHCT.nii.gz") if "copd" in str(i)
     ]
-    parameters_files = [i for i in datadir_param.rglob("*.txt")]
+    parameters_files = [i for i in datadir_param.rglob("*.txt")].sort()
 
     if mask:
         if "test" in dataset_option:
