@@ -10,7 +10,7 @@ index\
 ### Structure the data in our project folder
 The data in the cwd() of the project must be in the following Path: cwd()/data/YOUR_DATASET
 
-Inside your_dataset folder one folder is created for each patient with the following name: copdX.
+Inside your_dataset folder one folder is created for each patient MUST have the following name: copdX.
 Iniside that folder per patient all the data of that patient is located:
 * copdX_300_eBH_xyz_r1.txt
 * copdX_300_iBH_xyz_r1.txt
