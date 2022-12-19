@@ -51,11 +51,11 @@ def get_unet_seg(data_dir):
 
     images_files_inhale = [
         i for i in datadir.rglob("*.nii.gz")
-        if "copd2" in str(i) and 'iBHCT' in str(i)
+        if "copd" in str(i) and 'iBHCT' in str(i)
     ]
     images_files_exhale = [
         i for i in datadir.rglob("*.nii.gz")
-        if "copd2" in str(i) and 'eBHCT' in str(i)
+        if "copd" in str(i) and 'eBHCT' in str(i)
     ]
 
     # Read the chest CT scan
