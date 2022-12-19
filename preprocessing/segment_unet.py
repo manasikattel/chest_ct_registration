@@ -44,6 +44,12 @@ def segment_unet(dataset_option):
         segmentation[segmentation > 0] = 1
 
         img_corr = sitk.GetImageFromArray(segmentation)
+        # postprocess
+        # if postprocess:
+        #     kernel = morphology.ball(6)
+        #     closed = morphology.closing(holes_filled, kernel)
+        #     dilated = morphology.dilation(closed, kernel)
+
         img_corr.CopyInformation(ct_image)
 
         save_dir = results_dir / Path(image_file.parent.name)
