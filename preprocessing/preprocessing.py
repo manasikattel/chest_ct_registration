@@ -205,11 +205,6 @@ def main(dataset_option, preprocessing_type):
         patient = images_files_inhale[i].parent.stem
         ct_image_inhale = sitk.ReadImage(images_files_inhale[i])
         ct_image_exhale = sitk.ReadImage(images_files_exhale[i])
-        medianfilter = sitk.MedianImageFilter()
-        medianfilter.SetRadius(1)
-        ct_image_inhale = medianfilter.Execute(ct_image_inhale)
-        ct_image_exhale = medianfilter.Execute(ct_image_exhale)
-
         if preprocessing_type == 'Normalized':
             CT_normalization((ct_image_inhale, ct_image_exhale),
                              patients[i],
