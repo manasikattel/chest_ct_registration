@@ -4,7 +4,7 @@ The dataset used is [COPDGene](https://med.emory.edu/departments/radiation-oncol
 The dataset has landmarks for all the inhale-exhale image pairs which are used to calculate the registration error.
 Visualization of the images and segmentations shown was done in ITK-Snap.
 
-## IMPORTANT DATA STRUCURE
+## IMPORTANT DATA STRUCTURE
 The data must be organized as follows:
 ### Add at the top of the inhale landmarks .txt files the following rows:
 ```
