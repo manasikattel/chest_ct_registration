@@ -199,10 +199,17 @@ def main(dataset_option, preprocessing_type):
     ]
     results_dir = Path(f"data/{dataset_option}_{preprocessing_type}")
     results_dir.mkdir(parents=True, exist_ok=True)
+
     # Read the chest CT scan
     for i in tqdm(range(len(images_files_inhale))):
+        patient = images_files_inhale[i].parent.stem
         ct_image_inhale = sitk.ReadImage(images_files_inhale[i])
         ct_image_exhale = sitk.ReadImage(images_files_exhale[i])
+        medianfilter = sitk.MedianImageFilter()
+        medianfilter.SetRadius(1)
+        ct_image_inhale = medianfilter.Execute(ct_image_inhale)
+        ct_image_exhale = medianfilter.Execute(ct_image_exhale)
+
         if preprocessing_type == 'Normalized':
             CT_normalization((ct_image_inhale, ct_image_exhale),
                              patients[i],
@@ -211,12 +218,12 @@ def main(dataset_option, preprocessing_type):
                              plothist=False)
         if preprocessing_type == 'CLAHE':
             CT_CLAHE((ct_image_inhale, ct_image_exhale),
-                     patients[i],
+                     patient,
                      f"{dataset_option}",
                      plothistCLAHE=False)
         if preprocessing_type == 'Normalized_CLAHE':
             CT_normalization((ct_image_inhale, ct_image_exhale),
-                             patients[i],
+                             patient,
                              f"{dataset_option}",
                              clahe=True,
                              plothist=False)
