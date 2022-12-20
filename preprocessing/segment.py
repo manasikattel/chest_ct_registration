@@ -207,7 +207,6 @@ def main(dataset_option,
         img_255 = sitk.Cast(sitk.RescaleIntensity(ct_image), sitk.sitkUInt8)
         seg_img = sitk.GetArrayFromImage(img_255)
         segmented = segment_kmeans(seg_img)
-        breakpoint()
         removed, gantry_mask = remove_gantry(seg_img,
                                              segmented,
                                              visualize=False)
