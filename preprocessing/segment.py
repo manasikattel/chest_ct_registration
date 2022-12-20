@@ -198,7 +198,7 @@ def main(dataset_option,
          save_gantry_removed=True,
          save_lung_mask=True):
     datadir = thispath / Path(f"data/{dataset_option}")
-    images_files = [i for i in datadir.rglob("*.nii.gz") if "copd0" in str(i)]
+    images_files = [i for i in datadir.rglob("*.nii.gz") if "copd" in str(i)]
     results_dir = Path(f"data/{dataset_option}_gantry_removed")
     results_dir.mkdir(parents=True, exist_ok=True)
     # Read the chest CT scan
