@@ -27,9 +27,9 @@ def CT_normalization(lung_images,
     intro_images_description: str
     Describes introduced lung images, used for plotting the histograms
     clahe : bool
-    Boolean on whether to perform Contrast Limited Adaptive Histogram Equalization on the lungs
+    Boolean on whether to perform Contrast Limited Adaptive Histogram Equalization on the lungs after normalization
     plothist : bool
-    Boolean on whether to plot the histograms of the lungs, this same boolean if passed to the CLAHE function
+    Boolean on whether to plot the histograms of the lungs, this same boolean is passed to the CLAHE function
 
     Returns
     -------
@@ -93,29 +93,27 @@ def CT_CLAHE(lung_images,
              patient_num,
              intro_images_description,
              plothistCLAHE=False):
-    f"""
+    """
 
-        Parameters
-        ----------
+    Parameters
+    ----------
 
-        lung_images: tuple
-        Contains the lung images for the patient (SimpleITK.Image).
-        In the first position inhale image, in the second position exhale image.
-        patient_num: str
-        intro_images_description: str
-        Describes introduced lung images, used for plotting the histograms and for the name of the saved files
-        clahe : bool
-        Boolean on whether to perform Contrast Limited Adaptive Histogram Equalization on the lungs
-        plothist : bool
-        Boolean on whether to plot the histograms of the lungs, this same boolean if passed to the CLAHE function
+    lung_images: tuple
+    Contains the lung images for the patient (SimpleITK.Image).
+    In the first position inhale image, in the second position exhale image.
+    patient_num: str
+    intro_images_description: str
+    Describes introduced lung images, used for plotting the histograms and for the name of the saved files
+    plothistCLAHE : bool
+    Boolean on whether to plot the histograms of the lungs, this same boolean if passed to the CLAHE function
 
-        Returns
-        -------
-        This function saves the inhale and exhale images in a created 
-        subdirectory in data/train_intro_images_description_CLAHE
-        CLAHE_lung_images: tuple
-        SimpleITK.Image objects. In the first position inhale image, in the second position exhale image.
-        """
+    Returns
+    -------
+    This function saves the inhale and exhale images in a created
+    subdirectory in data/intro_images_description_CLAHE
+    CLAHE_lung_images: tuple
+    SimpleITK.Image objects. In the first position inhale image, in the second position exhale image.
+    """
     dataset_ = intro_images_description.split('_')[0]
     savingpath = thispath / f"data/{dataset_}{intro_images_description.replace(f'{dataset_}','')}_CLAHE/{patient_num}"
     Path(savingpath).mkdir(exist_ok=True, parents=True)
