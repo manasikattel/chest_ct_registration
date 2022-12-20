@@ -80,9 +80,8 @@ def remove_gantry(image, segmented, visualize=True):
     ndarray
         Gantry removed image.
     """
-    gantry_mask = segmented * (segmented == np.amin(segmented))
+    gantry_mask = (segmented < np.amax(segmented)).astype(np.uint8)
     contours = fill_chest_cavity(gantry_mask, vis_each_slice=False)
-
     removed = np.multiply(image, contours)
     if visualize:
         fig, ax = plt.subplots(1, 3, figsize=(10, 5))
@@ -199,7 +198,7 @@ def main(dataset_option,
          save_gantry_removed=True,
          save_lung_mask=True):
     datadir = thispath / Path(f"data/{dataset_option}")
-    images_files = [i for i in datadir.rglob("*.nii.gz") if "copd" in str(i)]
+    images_files = [i for i in datadir.rglob("*.nii.gz") if "copd0" in str(i)]
     results_dir = Path(f"data/{dataset_option}_gantry_removed")
     results_dir.mkdir(parents=True, exist_ok=True)
     # Read the chest CT scan
@@ -208,6 +207,7 @@ def main(dataset_option,
         img_255 = sitk.Cast(sitk.RescaleIntensity(ct_image), sitk.sitkUInt8)
         seg_img = sitk.GetArrayFromImage(img_255)
         segmented = segment_kmeans(seg_img)
+        breakpoint()
         removed, gantry_mask = remove_gantry(seg_img,
                                              segmented,
                                              visualize=False)
