@@ -64,26 +64,39 @@ U-Net based segmentation, as expected, performs better. However, for any back-up
 
 ### 1. Registration of the images (fixed image: inhale, moving image: exhale) using elastix.
 By running the function call "elastix_batch_file" located in `utils/batchfilecreator.py`, a system file is created (.bat or .sh depending on the OS). This elastix file is ready to perform
-the registration in the desired dataset folder. 
+the registration in the desired dataset folder using the parameter files in elastix/parameters/PARAMETER_FOLDER  and if
+--mask TRUE using also the provided segmentation in --mask_name either lung_unet, lung_ours or body. 
+An example of PARAMETER_FOLDER can be found in elastix/parameters/ParOurs. This folder contains two parameters files
+that elastix uses to perform the registration of the moving exhale image of the lungs into the fixed inhale image.
+Using to different transformations Affine and Bspline.
+
 ```
 python utils/batchfile_creator.py --batch_type elastix --name_experiment NAME_EXPERIMENT
  --parameter PARAMETER_FOLDER --dataset_option -DATASET --mask BOOLEAN --mask_name -MASK_NAME
 
 ```
+This system file (elastix*.bat or elastix*.sh) is saved in the folder `elastix/bat_files`.
 
 ### 2. Registration of the landmarks (fixed landmarks: inhale) using transformix
-By running the function call "transformix_batch_file" located in `utils/batchfilecreator.py`, a system file is created (.bat or .sh depending on the OS). This elastix file is ready to perform
-the transformation of the inhale landmarks aaplying the TransformationParameters that outputs the registration of 
-the images performed by elastix.
+By running the function call "transformix_batch_file" located in `utils/batchfilecreator.py`, a system file is created
+(.bat or .sh). This elastix file is ready to perform the transformation of the inhale landmarks applying the last
+TransformParameters.X.txt that outputs the registration of the images performed by elastix located in 
+elastix/Outputs_experiments_elastix/NAME_EXPERIMENT.
 ```
 python utils/batchfile_creator.py --batch_type transformix --name_experiment NAME_EXPERIMENT
 --parameter PARAMETER_FOLDER --dataset_option -DATASET
 ```
+This system file (transformix*.bat or transformix*.sh) is saved in the folder `elastix/bat_files`.
+This file outputs in the folder elastix/Outputs_experiments_transformix/NAME_EXPERIMENT different folders containing the
+transformed inhale landmarks to be located correctly in the exhale image used in the previous registration with the
+inhale image.
 
 ## Compute the metrics
-If the exhale landmarks .txt file is provided to check the result coming from the transformation of the inhale
-landmarks. Running the following line of code will create a .csv file in `cwd()/metrics` computing the mean TRE and std
-TRE per patient and the mean and std of all patients.
+If the exhale landmarks .txt groundtruth files per patient are provided, to check the results coming from the
+transformation of the inhale landmarks. Running the following line of code will create a .csv file in `metrics/`
+computing the mean TRE and std TRE per patient and the mean and std of all patients between the transformed inhale
+landmarks and the groundtruth.
+.
 ```
 python utils/metrics.py --folder_experiment_landmarks -FOLDER_NAME_OUTPUT_TRANSFORMIX
 

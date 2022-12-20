@@ -1,12 +1,16 @@
 # Ignore this folders from the project
 data/train*
 data/test*
-elastix
+elastix/bat_files
+elastix/Outputs_experiments_elastix
+elastix/Outputs_experiments_transformix
+elastix/parameters/*
 metrics
 output_points
 trash.py
 *.bat
 
+!elastix/parameters/ParOurs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
