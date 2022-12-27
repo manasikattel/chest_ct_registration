@@ -192,7 +192,7 @@ def CT_CLAHE(lung_images,
     default="Normalized",
     prompt="Preprocessing Technique:",
     help=
-    "Name of the preprocessing to be done;Normalized,CLAHE, Normalized_CLAHE or CLAHE_Normalized",
+    "Name of the preprocessing to be done;Normalized, CLAHE, Normalized_CLAHE or CLAHE_Normalized",
 )
 def main(dataset_option, preprocessing_type):
 
