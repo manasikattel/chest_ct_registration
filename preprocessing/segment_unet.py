@@ -31,6 +31,11 @@ def segment_unet(dataset_option):
     # Read the chest CT scan
     for image_file in tqdm(images_files):
         ct_image = sitk.ReadImage(str(image_file))
+
+        median_filter = sitk.MedianImageFilter()
+        median_filter.SetRadius(2)
+        ct_image = median_filter.Execute(ct_image)
+
         seg_img = sitk.GetArrayFromImage(ct_image)
         seg_img = exposure.rescale_intensity(seg_img,
                                              in_range="image",

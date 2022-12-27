@@ -10,7 +10,7 @@ output_points
 trash.py
 *.bat
 
-!elastix/parameters/ParOurs
+!elastix/parameters/ParOurs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
