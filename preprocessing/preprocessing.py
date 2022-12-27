@@ -13,7 +13,7 @@ thispath = Path.cwd().resolve()
 def CT_normalization(lung_images,
                      patient_num,
                      intro_images_description,
-                     clahe=True,
+                     clahe=False,
                      plothist=False):
     """
 
@@ -92,6 +92,7 @@ def CT_normalization(lung_images,
 def CT_CLAHE(lung_images,
              patient_num,
              intro_images_description,
+             normalized=False,
              plothistCLAHE=False):
     """
 
@@ -104,6 +105,8 @@ def CT_CLAHE(lung_images,
     patient_num: str
     intro_images_description: str
     Describes introduced lung images, used for plotting the histograms and for the name of the saved files
+    normalized : bool
+    Boolean on whether to perform Normalization on the lungs after CLAHE
     plothistCLAHE : bool
     Boolean on whether to plot the histograms of the lungs, this same boolean if passed to the CLAHE function
 
@@ -114,10 +117,6 @@ def CT_CLAHE(lung_images,
     CLAHE_lung_images: tuple
     SimpleITK.Image objects. In the first position inhale image, in the second position exhale image.
     """
-    dataset_ = intro_images_description.split('_')[0]
-    savingpath = thispath / f"data/{dataset_}{intro_images_description.replace(f'{dataset_}','')}_CLAHE/{patient_num}"
-    Path(savingpath).mkdir(exist_ok=True, parents=True)
-
     inhale = lung_images[0]
     inhale_image = sitk.GetArrayFromImage(inhale)
     exhale = lung_images[1]
@@ -152,11 +151,16 @@ def CT_CLAHE(lung_images,
     inhale_im.CopyInformation(lung_images[0])
     exhale_im = sitk.GetImageFromArray(np.int16(exhale_CLAHE))
     exhale_im.CopyInformation(lung_images[1])
-    sitk.WriteImage(inhale_im,
-                    str(Path(savingpath / f'{patient_num}_iBHCT.nii.gz')))
-    sitk.WriteImage(exhale_im,
-                    str(Path(savingpath / f'{patient_num}_eBHCT.nii.gz')))
-    # inhale_im = nib.Nifti1Image(np.float32(inhale_CLAHE), inhale.affine, header_in)
+    if not normalized:
+        # Save the CLAHE images only if normalization is not performed after CLAHE
+        dataset_ = intro_images_description.split('_')[0]
+        savingpath = thispath / f"data/{dataset_}{intro_images_description.replace(f'{dataset_}', '')}_CLAHE/{patient_num}"
+        Path(savingpath).mkdir(exist_ok=True, parents=True)
+        sitk.WriteImage(inhale_im,
+                        str(Path(savingpath / f'{patient_num}_iBHCT.nii.gz')))
+        sitk.WriteImage(exhale_im,
+                        str(Path(savingpath / f'{patient_num}_eBHCT.nii.gz')))
+
     CLAHE_lung_images = (inhale_im, exhale_im)
 
     if plothistCLAHE:
@@ -167,6 +171,11 @@ def CT_CLAHE(lung_images,
                           intro_images_description,
                           f"CLAHE of {intro_images_description}"
                       ])
+    if normalized:
+        CT_normalization(CLAHE_lung_images,
+                         patient_num,
+                         f"{intro_images_description}_CLAHE",
+                         plothist=plothistCLAHE)
 
     return CLAHE_lung_images
 
@@ -183,7 +192,7 @@ def CT_CLAHE(lung_images,
     default="Normalized",
     prompt="Preprocessing Technique:",
     help=
-    "Name of the preprocessing to be done;Normalized,CLAHE or Normalized_CLAHE",
+    "Name of the preprocessing to be done;Normalized,CLAHE, Normalized_CLAHE or CLAHE_Normalized",
 )
 def main(dataset_option, preprocessing_type):
 
@@ -215,6 +224,7 @@ def main(dataset_option, preprocessing_type):
             CT_CLAHE((ct_image_inhale, ct_image_exhale),
                      patient,
                      f"{dataset_option}",
+                     normalized=False,
                      plothistCLAHE=False)
         if preprocessing_type == 'Normalized_CLAHE':
             CT_normalization((ct_image_inhale, ct_image_exhale),
@@ -222,6 +232,13 @@ def main(dataset_option, preprocessing_type):
                              f"{dataset_option}",
                              clahe=True,
                              plothist=False)
+        if preprocessing_type == 'CLAHE_Normalized':
+            CT_CLAHE((ct_image_inhale, ct_image_exhale),
+                                patient,
+                                f"{dataset_option}",
+                                normalized=True,
+                                plothistCLAHE=False)
+
 
 
 if __name__ == "__main__":
