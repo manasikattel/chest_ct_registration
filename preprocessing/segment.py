@@ -7,7 +7,7 @@ from pathlib import Path
 from tqdm import tqdm
 import click
 from datetime import datetime
-from utils import segment_kmeans, remove_small_3D
+from utils import segment_kmeans, remove_small_3D, check_fov
 
 thispath = Path.cwd().resolve()
 
@@ -80,7 +80,7 @@ def remove_gantry(image, segmented, visualize=True):
     ndarray
         Gantry removed image.
     """
-    gantry_mask = (segmented < np.amax(segmented)).astype(np.uint8)
+    gantry_mask = segmented * (segmented == np.amin(segmented))
     contours = fill_chest_cavity(gantry_mask, vis_each_slice=False)
     removed = np.multiply(image, contours)
     if visualize:
@@ -206,7 +206,14 @@ def main(dataset_option,
         ct_image = sitk.ReadImage(str(image_file))
         img_255 = sitk.Cast(sitk.RescaleIntensity(ct_image), sitk.sitkUInt8)
         seg_img = sitk.GetArrayFromImage(img_255)
-        segmented = segment_kmeans(seg_img)
+
+        if check_fov(sitk.GetArrayFromImage(ct_image)):
+            segmented = segment_kmeans(seg_img)
+            print("\nFov presence: True")
+        else:
+            segmented = segment_kmeans(seg_img, K=2)
+            print("\nFov presence: False")
+
         removed, gantry_mask = remove_gantry(seg_img,
                                              segmented,
                                              visualize=False)
