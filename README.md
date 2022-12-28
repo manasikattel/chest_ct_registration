@@ -63,7 +63,7 @@ terminal:
 ```
 python -m preprocessing.preprocessing  --dataset_option DATASET --preprocessing_type PREPROCESSING_OPTION 
 ```
-![alt text](figures/Normalized_CLAHE.png "Normalized_CLAHE")
+![alt text](figures/clahe.png "Normalized_CLAHE")
 
 
 ### 3. Gantry removal
