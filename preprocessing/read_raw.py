@@ -17,7 +17,7 @@ from utils import get_image_info, read_raw
     help="Path to metadata file",
 )
 def save_rawtositk(dataset_option, metadata_file):
-    datadir = Path("data") / Path(dataset_option)
+    datadir = Path("../data") / Path(dataset_option)
     metadata_dict = get_image_info(metadata_file)
     raw_images_names = [i for i in datadir.rglob("*.img") if "copd" in str(i)]
     for raw_name in raw_images_names:
