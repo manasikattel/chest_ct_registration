@@ -6,7 +6,6 @@ import numpy as np
 from pathlib import Path
 from tqdm import tqdm
 import click
-from datetime import datetime
 from utils import segment_kmeans, remove_small_3D, check_fov
 
 thispath = Path.cwd().resolve()
@@ -147,30 +146,6 @@ def get_lung_segmentation(segmented, gantry_mask, visualize=False):
     return dilated
 
 
-def get_gantry_removed(image):
-    """
-    Get gantry removed image
-
-    Parameters
-    ----------
-    image : sitk image
-        Sitk Image of the lung CT
-
-    Returns
-    -------
-    ndarray
-        Numpy array with gantry removed image
-    """
-    img_255 = sitk.Cast(sitk.RescaleIntensity(image), sitk.sitkUInt8)
-    seg_img = sitk.GetArrayFromImage(img_255)
-    segmented = segment_kmeans(seg_img)
-    removed, gantry_mask = remove_gantry(seg_img, segmented, visualize=False)
-    removed_im = sitk.GetImageFromArray(np.int16(removed))
-    removed_im.CopyInformation(image)
-
-    return removed_im
-
-
 @click.command()
 @click.option(
     "--dataset_option",
@@ -181,17 +156,18 @@ def get_gantry_removed(image):
     "--mask_creation",
     default=False,
     help=
-    "whether to save the binary mask(True) or the CT image with the gantry removed(False) ; False, True",
+    "whether to save the binary mask(True) of the body segmentation; "
+    "False, True",
 )
 @click.option(
     "--save_gantry_removed",
     default=True,
-    help="whether to save the gantry removed image; False, True",
+    help="whether to save the gantry removed CT image; False, True",
 )
 @click.option(
     "--save_lung_mask",
     default=True,
-    help="whether to save the lung mask ; False, True",
+    help="whether to save the binary lung mask; False, True",
 )
 def main(dataset_option,
          mask_creation=False,
@@ -235,7 +211,7 @@ def main(dataset_option,
             removed_sitk = sitk.GetImageFromArray(removed)
             removed_sitk.CopyInformation(ct_image)
             save_dir = thispath / Path(
-                f"data/{dataset_option}_gantry_removed/{Path(image_file.parent.name)}"
+                f"{results_dir}/{Path(image_file.parent.name)}"
             )
             save_dir.mkdir(parents=True, exist_ok=True)
             sitk.WriteImage(removed_sitk,
@@ -245,17 +221,10 @@ def main(dataset_option,
             img_corr = sitk.GetImageFromArray(gantry_mask)
             img_corr.CopyInformation(ct_image)
             save_dir = thispath / Path(
-                f"data/train_segmentation/{Path(image_file.parent.name)}")
+                f"data/train_segmentations/{Path(image_file.parent.name)}")
             save_dir.mkdir(parents=True, exist_ok=True)
             sitk.WriteImage(
                 img_corr, str(Path(save_dir / f'seg_body_{image_file.name}')))
-        else:
-            img_corr = sitk.GetImageFromArray(removed)
-            img_corr.CopyInformation(ct_image)
-            save_dir = results_dir / Path(image_file.parent.name)
-            save_dir.mkdir(parents=True, exist_ok=True)
-            sitk.WriteImage(img_corr,
-                            str(Path(save_dir / Path(image_file.name))))
 
 
 if __name__ == "__main__":
