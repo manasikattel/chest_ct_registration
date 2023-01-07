@@ -1,4 +1,7 @@
 import matplotlib.pyplot as plt
+# Just load seaborn & set theme and the chart looks better:
+import seaborn as sns
+sns.set_theme()
 from skimage import exposure
 import SimpleITK as sitk
 
