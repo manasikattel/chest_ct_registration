@@ -1,11 +1,13 @@
 # Chest CT registration
-This repository contains the code for registration of Chest CT done from inspiratory to expiratory breath-hold CT image pairs. The dataset used is [COPDGene](https://med.emory.edu/departments/radiation-oncology/research-laboratories/deformable-image-registration/downloads-and-reference-data/copdgene.html) dataset. The dataset has landmarks for all the inhale-exhale image pairs which are used to calculate the registration error.
+This repository contains the code for registration of Chest CT done with inspiratory and expiratory breath-hold CT
+image pairs. The dataset used is [COPDGene](https://med.emory.edu/departments/radiation-oncology/research-laboratories/deformable-image-registration/downloads-and-reference-data/copdgene.html)
+dataset. The dataset has landmarks for all the inhale-exhale image pairs which are used to calculate the registration
+error.
 
 ## DATA STRUCTURE
 
-
 ### Structure of the data in our project folder
-The data in the cwd() of the project must be in the following Path: `cwd()/data/YOUR_DATASET`
+The data in the cwd() of the project must be in the following Path: `cwd()/data/YOUR_DATASET`.
 
 Inside YOUR_DATASET folder one folder per patient named: `copd*X*`. Inside that folders all the data per patient
 is located with the following names changing *X* to a different integer per patient:
@@ -14,13 +16,14 @@ is located with the following names changing *X* to a different integer per pati
 * copd*X*_iBHCT.img
 * optional: copd*X*_300_eBH_xyz_r1.txt (groundtruth)
 
-For this project copd1, copd2, copd3, copd4 from [COPDGene](https://med.emory.edu/departments/radiation-oncology/research-laboratories/deformable-image-registration/downloads-and-reference-data/copdgene.html) were used as 'train' dataset.
+For this project copd1, copd2, copd3, copd4 from [COPDGene](https://med.emory.edu/departments/radiation-oncology/research-laboratories/deformable-image-registration/downloads-and-reference-data/copdgene.html)
+were used as 'train' dataset (YOUR_DATASET).
 ### Add at the top of the inhale landmarks .txt files the following rows:
 ```
 index
-300 (number of landmarks)
+300
 ```
-* This is necessary for transformix to be able to read the inhale landmarks .txt files correctly.
+* This is a necessary step for transformix to be able to read the inhale landmarks .txt files correctly.
 
 ## Setting up the environment
 - Create a conda environment
@@ -103,9 +106,9 @@ python -m preprocessing.segment_unet --dataset_option DATASET_gantry_removed
 
 ### 1. Registration of the images (fixed image: inhale, moving image: exhale) using elastix.
 By running the function call "elastix_batch_file" located in `utils/batchfilecreator.py`, a system file is created
-(.bat or .sh). This elastix file is ready to perform the registration of the inhale (copd*X*_iBHCT.nii.gz) to the
-exhale (copd*X*_eBHCT.img) lung images in the desired data/-DATASET by using the parameter files in
-elastix/parameters/PARAMETER_FOLDER and if --mask TRUE using also the provided segmentation in --mask_name
+(.bat or .sh). This elastix system file is ready to perform the registration of the inhale (copd*X*_iBHCT.nii.gz) 
+to the exhale (copd*X*_eBHCT.nii.gz) lung images from the desired data/-DATASET by using the desired parameter files
+in elastix/parameters/PARAMETER_FOLDER and if --mask TRUE using also the provided segmentation in --mask_name
 either lung_unet, lung_ours or body.
 
 An example of PARAMETER_FOLDER can be found in elastix/parameters/ParOurs. This folder contains two parameters files
@@ -117,6 +120,24 @@ python utils/batchfile_creator.py --batch_type elastix --name_experiment NAME_EX
  --parameter PARAMETER_FOLDER --dataset_option -DATASET --mask BOOLEAN --mask_name -MASK_NAME
 
 ```
+Once the -DATASET (train) is placed in the working directory as described in the section *Structure of the data in our
+project folder*. Run the following line of code to create an example of elastix system file.
+
+```
+python utils/batchfile_creator.py --batch_type elastix --name_experiment example
+ --parameter ParOurs --dataset_option train
+
+```
+
+If the segmentation, for example coming from the U-net, is provided as described in the subsection
+*Segmentation of the lungs* in the *Data preprocessing*. Run the following line of code to create an
+example of elastix system file.
+```
+python utils/batchfile_creator.py --batch_type elastix --name_experiment example_segmentation --parameter ParOurs
+--dataset_option train --mask True --mask_name lung_unet
+
+```
+
 This system file (elastix*.bat or elastix*.sh) is saved in the folder `elastix/bat_files`.
 
 ### 2. Registration of the landmarks (fixed landmarks: inhale) using transformix
@@ -128,10 +149,16 @@ elastix/Outputs_experiments_elastix/NAME_EXPERIMENT.
 python utils/batchfile_creator.py --batch_type transformix --name_experiment NAME_EXPERIMENT
 --parameter PARAMETER_FOLDER --dataset_option -DATASET
 ```
-This system file (transformix*.bat or transformix*.sh) is saved in the folder `elastix/bat_files`.
-This file outputs in the folder elastix/Outputs_experiments_transformix/NAME_EXPERIMENT different folders containing the
-transformed inhale landmarks as outputpoints.txt files to be located correctly in the exhale image used in the previous
-registration with the inhale image.
+Run the following line of code to create an example of elastix system file to run trasnformix.
+```
+python utils/batchfile_creator.py --batch_type transformix --name_experiment example
+ --parameter ParOurs --dataset_option train
+```
+
+This system file (transformix*.bat or transformix*.sh) is saved in the folder `elastix/bat_files`. This file outputs in
+the folder elastix/Outputs_experiments_transformix/NAME_EXPERIMENT different folders containing the transformed inhale
+landmarks as outputpoints.txt files to be located correctly in the exhale image used in the previous registration
+with the inhale image.
 
 ## Compute the metrics
 If the exhale landmarks copd*X*_300_eBH_xyz_r1.txt (groundtruth) files per patient are provided, to check the results
