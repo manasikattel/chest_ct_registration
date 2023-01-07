@@ -14,10 +14,9 @@ def TRE_measure(inhale_landmarks, exhale_landmarks, patient_number):
     Patient number used to get the voxel spacing for each patient,
     of the format "copdx" where x is a number. Accepts both upper and lower case letters.
     inhale_landmarks: numpy array
-    Landmark coordinates (x,y,z) from the source (moving) image
-    exhale_landmarks: numpy array
     Landmark coordinates (x,y,z) from the target (fixed) image
-
+    exhale_landmarks: numpy array
+    Landmark coordinates (x,y,z) from the  source (moving) image
     Returns
     -------
     tre.mean(): float
