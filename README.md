@@ -172,7 +172,16 @@ python utils/metrics.py --folder_experiment_landmarks -FOLDER_NAME_OUTPUT_TRANSF
 ```
 ## Our Pipeline
 
-To reproduce the registration of the lung images and its landmarks as we did, please follow the command below:
+To reproduce the registration of the lung images and its landmarks as we did (results shown in the table below), please follow the command below:
+
+
+ | Case ID | Mean TRE | TRE Std Dev |
+ |---------|----------|-------------|
+ | copd1   | 1.4667   | 1.6677      |
+ | copd2   | 2.5969   | 2.9965      |
+ | copd3   | 1.2824   | 1.0320      |
+ | copd4   | 1.7728   | 1.3609      |
+ | mean    | 1.7797   | 1.7643      |
 
 ###TRAIN DATASET: Lung segmentation
 ```
