@@ -1,4 +1,5 @@
 ﻿Label,image_dims0,image_dims1,image_dims2,vspacing0,vspacing1,vspacing2,displacement_mean,displacement_std
+copd0,256, 256, 94, 0.97, 0.97, 2.5, 0, 0
 copd1,512,512,121,0.625,0.625,2.5,25.9, 11.57
 copd2,512,512,102,0.645,0.645,2.5,21.77, 6.46
 copd3,512,512,126,0.652,0.652,2.5,12.29, 6.39
