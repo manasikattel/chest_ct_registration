@@ -183,13 +183,13 @@ To reproduce the registration of the lung images and its landmarks as we did (re
  | copd4   | 1.7728   | 1.3609      |
  | mean    | 1.7797   | 1.7643      |
 
-###TRAIN DATASET: Lung segmentation
+### TRAIN DATASET: Lung segmentation
 ```
 python -m preprocessing.preprocessing  --dataset_option train --preprocessing_type CLAHE_Normalized
 python -m preprocessing.segment --dataset_option train_CLAHE_Normalized --save_gantry_removed True --save_lung_mask False
 python -m preprocessing.segment_unet --dataset_option train_CLAHE_Normalized_gantry_removed
 ```
-###TRAIN DATASET: Image registration
+### TRAIN DATASET: Image registration
 ```
 python -m preprocessing.preprocessing  --dataset_option train --preprocessing_type Normalized_CLAHE
 python utils/batchfile_creator.py --batch_type elastix --name_experiment train_Normalized_CLAHE --parameter ParOurs --dataset_option train_Normalized_CLAHE --mask True --mask_name lung_unet
@@ -205,7 +205,7 @@ python -m preprocessing.preprocessing  --dataset_option test --preprocessing_typ
 python -m preprocessing.segment --dataset_option test_CLAHE_Normalized --save_gantry_removed True --save_lung_mask False
 python -m preprocessing.segment_unet --dataset_option test_CLAHE_Normalized_gantry_removed
 ```
-###TEST DATASET: Image registration
+### TEST DATASET: Image registration
 ```
 python -m preprocessing.preprocessing  --dataset_option test --preprocessing_type Normalized_CLAHE
 python utils/batchfile_creator.py --batch_type elastix --name_experiment test_Normalized_CLAHE --parameter ParOurs --dataset_option test_Normalized_CLAHE --mask True --mask_name lung_unet
